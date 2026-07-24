@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#000000" />
+  <title>Tesla Trek · Car HUD · AR Adventures</title>
+  <meta name="description" content="Free Tesla Trek car HUD with AR-pin hunts, GPS claims, adventures, and Trek Stars rewards. Optional DOGE Starter unlocks paid pins.">
+  <link rel="canonical" href="https://www.tesla-trek.com/car">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.tesla-trek.com/car">
+  <meta property="og:title" content="Tesla Trek — Car HUD">
+  <meta property="og:description" content="Free car HUD with AR-pin location hunts, GPS claims, and Trek Stars. Optional DOGE Starter for paid pins.">
+  <meta property="og:image" content="https://www.tesla-trek.com/icons/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tesla Trek — Car HUD">
+  <meta name="twitter:description" content="Free car HUD, AR hunts, Trek Stars rewards.">
+  <meta name="twitter:image" content="https://www.tesla-trek.com/icons/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <!-- UX ref: tesla.com/modely — cabin-dark adaptation of Explore / specs / CTA patterns -->
+  <style>
+    :root {
+      --bg: #000;
+      --panel: #0b0d12;
+      --panel-2: #11141b;
+      --edge: #1c1f26;
+      --text: #f4f4f4;
+      --muted: #8e959e;
+      --tesla-blue: #3e6ae1;
+      --tesla-sky: #008ee6;
+      --cyan: #00d4ff;
+      --gold: #e8b84a;
+      --green: #3dd68c;
+      --red: #cc0000;
+      --touch: 64px;
+      --r: 10px;
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --display: system-ui, -apple-system, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    button {
+      font: inherit;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+      touch-action: manipulation;
+      background: none;
+    }
+    .app {
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    /* ===== HEADER (Model Y top bar energy) ===== */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--edge);
+      background: linear-gradient(180deg, #10131a 0%, #000 100%);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .mark {
+      width: 44px; height: 44px; border-radius: 8px;
+      background: linear-gradient(145deg, var(--tesla-blue), #1a3a8a);
+      display: grid; place-items: center;
+      font-weight: 800; font-size: 18px; letter-spacing: -0.02em;
+      box-shadow: 0 0 20px rgba(62, 106, 225, 0.35);
+    }
+    .brand h1 {
+      font-family: var(--display);
+      font-size: 20px; font-weight: 700; letter-spacing: 0.12em;
+    }
+    .brand p {
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 0.16em; text-transform: uppercase;
+    }
+    .status-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .pill {
+      min-height: 40px; padding: 0 14px; border-radius: 999px;
+      border: 1px solid var(--edge); background: var(--panel);
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-variant-numeric: tabular-nums;
+    }
+    .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+    .pill.live .dot { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+    .pill.sim .dot { background: var(--gold); }
+    .pill.fleet-on { border-color: rgba(62, 106, 225, 0.55); color: #9bb6ff; }
+    .pill.starter-free { border-color: rgba(200, 196, 154, 0.35); color: #c8c49a; }
+    .pill.starter-provisional { border-color: rgba(232, 184, 74, 0.55); color: var(--gold); }
+    .pill.starter-provisional .dot { background: var(--gold); }
+    .pill.starter-confirmed { border-color: rgba(61, 214, 140, 0.55); color: #9dffc4; }
+    .pill.starter-confirmed .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .pill a { color: inherit; text-decoration: none; }
+    .adv-card.locked {
+      opacity: 0.78;
+      border-color: rgba(232, 184, 74, 0.35);
+    }
+    .adv-card.locked .visual {
+      color: var(--gold);
+      background:
+        radial-gradient(circle at 30% 40%, rgba(232,184,74,.18), transparent 50%),
+        linear-gradient(135deg, #14120a, #1a1810);
+    }
+    .pin.locked {
+      opacity: 0.55;
+      border-style: dashed;
+      border-color: rgba(232, 184, 74, 0.5);
+      color: var(--gold);
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    @media (prefers-reduced-motion: reduce) {
+      .pill.live .dot, .ar-ray, .ring-pulse { animation: none !important; }
+    }
+
+    /* ===== SECTION NAV (Explore Model Y style) ===== */
+    .section-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border-bottom: 1px solid var(--edge);
+      background: var(--panel);
+    }
+    .section-nav button {
+      min-height: 52px;
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+    }
+    .section-nav button.active {
+      color: var(--text);
+      border-bottom-color: var(--tesla-blue);
+      background: linear-gradient(180deg, rgba(62,106,225,.12), transparent);
+    }
+
+    /* ===== STAGES =====
+       Pre-rendered panels; tab switch only toggles active class (no DOM rebuild).
+       content-visibility keeps off-screen stages cheap for INP. */
+    .stage {
+      min-height: 0;
+      overflow: hidden;
+      display: none;
+      content-visibility: auto;
+      contain: layout style paint;
+    }
+    .stage.active {
+      display: grid;
+      content-visibility: visible;
+    }
+
+    /* --- AR MAP --- */
+    #stageAr {
+      grid-template-columns: 1.4fr 1fr;
+    }
+    @media (max-width: 900px) {
+      #stageAr { grid-template-columns: 1fr; grid-template-rows: 1.1fr 1fr; }
+    }
+    .ar-viewport {
+      position: relative;
+      border-right: 1px solid var(--edge);
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, #0a1628 0%, #061018 38%, #0a0c10 55%, #12161c 100%);
+    }
+    .ar-sky {
+      position: absolute; inset: 0 0 42% 0;
+      background:
+        radial-gradient(ellipse at 50% 100%, rgba(0,142,230,.18), transparent 55%),
+        linear-gradient(180deg, #0c1a2e, #0a121c);
+    }
+    .ar-horizon {
+      position: absolute; left: 0; right: 0; top: 56%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,.55), transparent);
+    }
+    .ar-ground {
+      position: absolute; left: 0; right: 0; top: 56%; bottom: 0;
+      background:
+        linear-gradient(rgba(0,212,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,.05) 1px, transparent 1px),
+        linear-gradient(180deg, #0c1016, #050608);
+      background-size: 64px 64px, 64px 64px, auto;
+      transform: perspective(420px) rotateX(58deg);
+      transform-origin: center top;
+    }
+    .ar-label {
+      position: absolute; top: 14px; left: 14px; z-index: 4;
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--cyan); opacity: .9;
+    }
+    .ar-compass {
+      position: absolute; top: 12px; right: 12px; z-index: 4;
+      width: 64px; height: 64px; border-radius: 50%;
+      border: 1px solid rgba(62,106,225,.45);
+      background: rgba(0,0,0,.45);
+      display: grid; place-items: center;
+      font-size: 12px; font-weight: 700; color: #9bb6ff;
+    }
+    .ar-compass span { font-size: 18px; color: var(--cyan); display: block; text-align: center; }
+    .claim-ring {
+      position: absolute; left: 50%; top: 62%;
+      width: 120px; height: 70px;
+      transform: translate(-50%, -50%);
+      border: 2px dashed rgba(62,106,225,.55);
+      border-radius: 50%;
+      box-shadow: 0 0 24px rgba(62,106,225,.2);
+    }
+    .ring-pulse {
+      position: absolute; left: 50%; top: 62%;
+      width: 180px; height: 100px;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(0,212,255,.2);
+      border-radius: 50%;
+      animation: ring 3s ease-out infinite;
+    }
+    @keyframes ring {
+      0% { transform: translate(-50%,-50%) scale(.7); opacity: .6; }
+      100% { transform: translate(-50%,-50%) scale(1.35); opacity: 0; }
+    }
+    .ar-ray {
+      position: absolute; left: 50%; top: 62%;
+      width: 2px; height: 28%;
+      transform-origin: bottom center;
+      background: linear-gradient(to top, rgba(0,212,255,.7), transparent);
+      opacity: .65;
+    }
+    .pin {
+      position: absolute; transform: translate(-50%, -100%);
+      min-width: 72px; min-height: 56px;
+      padding: 8px 10px 14px;
+      border-radius: 12px 12px 12px 4px;
+      border: 1px solid rgba(0,212,255,.55);
+      background: rgba(6, 14, 22, 0.92);
+      color: var(--cyan);
+      font-size: 12px; font-weight: 700;
+      text-align: center; line-height: 1.15;
+      z-index: 3;
+      box-shadow: 0 8px 24px rgba(0,0,0,.45);
+    }
+    .pin .dist { display: block; font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+    .pin.selected {
+      border-color: var(--gold); color: var(--gold);
+      box-shadow: 0 0 28px rgba(232,184,74,.35);
+    }
+    .pin.claimed {
+      border-color: var(--green); color: var(--green); opacity: .75;
+    }
+    .vehicle {
+      position: absolute; left: 50%; top: 62%;
+      width: 22px; height: 34px;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(180deg, #fff, #9bb6ff);
+      border-radius: 6px 6px 4px 4px;
+      box-shadow: 0 0 18px rgba(62,106,225,.7);
+      z-index: 5;
+    }
+    .next-badge {
+      position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+      z-index: 6; min-height: 48px; max-width: 92%;
+      padding: 10px 18px; border-radius: 999px;
+      background: rgba(11,13,18,.92);
+      border: 1px solid rgba(62,106,225,.45);
+      font-size: 15px; text-align: center;
+    }
+    .next-badge strong { color: var(--cyan); }
+    .map-toast {
+      position: absolute; left: 50%; top: 18%; transform: translateX(-50%);
+      z-index: 8; min-height: 44px; max-width: 90%;
+      padding: 10px 18px; border-radius: 999px;
+      background: rgba(0,0,0,.88); border: 1px solid var(--edge);
+      font-size: 15px; opacity: 0; pointer-events: none; transition: opacity .2s;
+      text-align: center;
+    }
+    .map-toast.show { opacity: 1; }
+
+    .side {
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      min-height: 0;
+      background: var(--panel);
+    }
+    .hero-strip {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--edge);
+      background:
+        radial-gradient(ellipse at 100% 0%, rgba(62,106,225,.18), transparent 55%),
+        var(--panel);
+    }
+    .hero-strip .kicker {
+      font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 4px;
+    }
+    .hero-strip .title {
+      font-family: var(--display);
+      font-size: 26px; font-weight: 700; line-height: 1.15;
+    }
+    .hero-strip .sub {
+      margin-top: 6px; color: var(--muted); font-size: 14px; line-height: 1.4;
+    }
+    /* Specs grid — Model Y Range / 0-60 pattern */
+    .specs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--edge);
+    }
+    .spec {
+      padding: 12px 8px;
+      text-align: center;
+      border-right: 1px solid var(--edge);
+    }
+    .spec:last-child { border-right: none; }
+    .spec b {
+      display: block;
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .spec span {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .quest-list {
+      overflow: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .quest-row {
+      min-height: 56px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: var(--r);
+      border: 1px solid var(--edge);
+      background: var(--panel-2);
+      text-align: left;
+    }
+    .quest-row.active { border-color: rgba(62,106,225,.6); }
+    .quest-row.done { opacity: .65; }
+    .q-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 13px; font-weight: 700;
+      background: #0a0c10; border: 1px solid var(--edge);
+      color: var(--muted);
+    }
+    .quest-row.active .q-num { border-color: var(--tesla-blue); color: #9bb6ff; }
+    .quest-row.done .q-num { border-color: var(--green); color: var(--green); }
+    .q-name { font-size: 15px; font-weight: 650; }
+    .q-meta { font-size: 12px; color: var(--muted); }
+    .q-reward { font-size: 12px; color: var(--gold); font-weight: 600; text-align: right; }
+    .side-cta {
+      padding: 12px;
+      border-top: 1px solid var(--edge);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 8px;
+    }
+    .btn {
+      min-height: var(--touch);
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+    .btn-primary {
+      background: var(--tesla-blue);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid #393c41;
+      color: var(--text);
+    }
+
+    /* --- ADVENTURES (Explore Model Y tiers) --- */
+    #stageAdventures {
+      grid-template-rows: auto auto 1fr;
+      background: var(--bg);
+      overflow: hidden;
+    }
+    .adv-hero {
+      padding: 28px 24px 20px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(62,106,225,.22), transparent 60%),
+        #000;
+      border-bottom: 1px solid var(--edge);
+    }
+    .adv-hero h2 {
+      font-family: var(--display);
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .adv-hero p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.45;
+    }
+    .tier-tabs {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--edge);
+      background: var(--panel);
+      -webkit-overflow-scrolling: touch;
+    }
+    .tier-tabs button {
+      flex: 1 0 auto;
+      min-height: 48px;
+      min-width: 120px;
+      padding: 0 16px;
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: .06em;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .tier-tabs button.active {
+      color: var(--text);
+      border-bottom-color: var(--tesla-blue);
+    }
+    .adv-grid {
+      overflow: auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      align-content: start;
+      -webkit-overflow-scrolling: touch;
+    }
+    .adv-card {
+      text-align: left;
+      border-radius: 12px;
+      border: 1px solid var(--edge);
+      background: var(--panel);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 96px 1fr auto;
+      min-height: 280px;
+    }
+    .adv-card.active {
+      border-color: rgba(62,106,225,.7);
+      box-shadow: 0 0 0 1px rgba(62,106,225,.25);
+    }
+    .adv-card .visual {
+      background:
+        radial-gradient(circle at 30% 40%, rgba(0,212,255,.25), transparent 50%),
+        radial-gradient(circle at 80% 60%, rgba(62,106,225,.35), transparent 45%),
+        linear-gradient(135deg, #0a1018, #121820);
+      display: flex;
+      align-items: flex-end;
+      padding: 12px 14px;
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #9bb6ff;
+    }
+    .adv-card .body { padding: 14px 16px; }
+    .adv-card .body h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .adv-card .body p { font-size: 13px; color: var(--muted); line-height: 1.4; }
+    .adv-specs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--edge);
+      margin-top: 12px;
+    }
+    .adv-specs div {
+      padding: 10px 4px 0;
+      text-align: center;
+    }
+    .adv-specs b { display: block; font-size: 15px; }
+    .adv-specs span { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .adv-card .foot {
+      padding: 12px 16px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .adv-card .foot .btn { min-height: 48px; font-size: 13px; }
+
+    /* --- REWARDS --- */
+    #stageRewards {
+      grid-template-rows: auto 1fr;
+      background: var(--bg);
+    }
+    .reward-hero {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--edge);
+      background:
+        radial-gradient(ellipse at 0% 0%, rgba(232,184,74,.15), transparent 50%),
+        var(--panel);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+    .reward-hero h2 { font-size: 28px; font-weight: 700; }
+    .reward-hero p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .reward-totals {
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;
+    }
+    .rt {
+      min-width: 88px; padding: 10px 14px;
+      border-radius: 8px; border: 1px solid var(--edge);
+      background: #0a0c10; text-align: center;
+    }
+    .rt b { display: block; font-size: 22px; color: var(--gold); font-variant-numeric: tabular-nums; }
+    .rt span { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .ledger {
+      overflow: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ledger-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: var(--r);
+      border: 1px solid var(--edge);
+      background: var(--panel);
+    }
+    .badge-ico {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: grid; place-items: center;
+      background: linear-gradient(145deg, rgba(62,106,225,.35), rgba(0,212,255,.15));
+      font-size: 18px;
+    }
+    .ledger-row .name { font-weight: 650; font-size: 15px; }
+    .ledger-row .when { font-size: 12px; color: var(--muted); }
+    .ledger-row .gain { text-align: right; color: var(--gold); font-weight: 700; font-size: 14px; }
+    .empty-ledger {
+      text-align: center; color: var(--muted); padding: 48px 20px; line-height: 1.5;
+    }
+
+    /* ===== DOCK ===== */
+    footer {
+      border-top: 1px solid var(--edge);
+      background: #05070b;
+      padding: 10px 14px 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .voice-bar {
+      min-height: 48px;
+      border-radius: 8px;
+      border: 1px solid var(--edge);
+      background: var(--panel);
+      display: flex; align-items: center;
+      padding: 0 16px;
+      font-size: 15px; color: var(--muted);
+    }
+    .voice-bar.listening {
+      border-color: var(--tesla-blue);
+      color: var(--text);
+      box-shadow: 0 0 20px rgba(62,106,225,.25);
+    }
+    .voice-bar strong { color: #9bb6ff; font-weight: 600; }
+    .dock {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .dock button {
+      min-height: var(--touch);
+      border-radius: 8px;
+      background: var(--panel-2);
+      border: 1px solid var(--edge);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .dock button .ico { font-size: 18px; line-height: 1; }
+    .dock button.primary { border-color: rgba(62,106,225,.55); color: #9bb6ff; }
+    .dock button.cta {
+      background: var(--tesla-blue);
+      border-color: var(--tesla-blue);
+      color: #fff;
+    }
+    .dock button.gold { border-color: rgba(232,184,74,.45); color: var(--gold); }
+    .dock button:active { transform: scale(.98); opacity: .92; }
+    .park-note {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .04em;
+    }
+
+    /* Modal — Tesla CTA style */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.78);
+      display: none; place-items: center;
+      z-index: 50; padding: 24px;
+    }
+    .overlay.open { display: grid; }
+    .modal {
+      width: min(480px, 100%);
+      background: #0b0d12;
+      border: 1px solid var(--edge);
+      border-radius: 12px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .modal h3 { font-size: 24px; margin-bottom: 8px; }
+    .modal p { color: var(--muted); font-size: 15px; margin-bottom: 16px; line-height: 1.45; }
+    .modal .big {
+      font-size: 36px; font-weight: 800; color: var(--gold);
+      margin: 8px 0 20px; font-variant-numeric: tabular-nums;
+    }
+    .modal .btn-primary { width: 100%; min-height: 56px; border-radius: 8px; }
+    .modal .note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+    /* Adventure progress + GPS */
+    .progress-wrap {
+      margin: 10px 0 4px; height: 8px; border-radius: 999px;
+      background: var(--edge); overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--tesla-blue), var(--cyan));
+      transition: width 0.35s ease;
+    }
+    .progress-meta {
+      display: flex; justify-content: space-between; gap: 8px;
+      font-size: 11px; color: var(--muted); margin-bottom: 8px;
+    }
+    .gps-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border-radius: 999px; font-size: 12px;
+      border: 1px solid var(--edge); background: var(--panel-2);
+      color: var(--muted); margin-top: 8px;
+    }
+    .gps-chip.near { border-color: rgba(61, 214, 140, 0.5); color: var(--green); }
+    .gps-chip.far { border-color: rgba(232, 184, 74, 0.4); color: var(--gold); }
+    .reward-actions {
+      display: flex; gap: 8px; flex-wrap: wrap; margin: 0 16px 12px;
+    }
+    .reward-actions .btn {
+      flex: 1; min-width: 120px; min-height: 44px; border-radius: 8px;
+      background: var(--panel-2); border: 1px solid var(--edge); color: var(--text);
+      font-size: 13px; font-weight: 600;
+    }
+    .reward-actions .btn:hover { border-color: var(--tesla-blue); }
+    .honesty {
+      margin: 0 16px 12px; padding: 10px 12px; border-radius: 10px;
+      background: #12140c; border: 1px solid #3a3a20; color: #c8c49a;
+      font-size: 12px; line-height: 1.4;
+    }
+    .badge-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px; padding: 0 16px 16px;
+    }
+    .badge-card {
+      padding: 12px; border-radius: 10px; background: var(--panel);
+      border: 1px solid var(--edge); font-size: 13px;
+    }
+    .badge-card b { display: block; color: var(--gold); margin-bottom: 4px; }
+    .badge-card span { color: var(--muted); font-size: 11px; }
+    .ledger-row .mode-tag {
+      display: inline-block; margin-left: 6px; padding: 1px 6px;
+      border-radius: 4px; font-size: 10px; font-weight: 700;
+      background: #1a2430; color: #9bb6ff;
+    }
+    .ledger-row .mode-tag.device { background: #2a2410; color: var(--gold); }
+    .pin.in-range { box-shadow: 0 0 0 2px var(--green), 0 0 16px rgba(61,214,140,0.35); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="mark">T</div>
+        <div>
+          <h1>Tesla Trek Car HUD</h1>
+          <p>AR · adventures · rewards</p>
+        </div>
+      </div>
+      <div class="status-pills">
+        <div class="pill sim" id="modePill"><span class="dot"></span><span id="modeLabel">SIM</span></div>
+        <div class="pill" id="fleetPill"><span class="dot"></span><span id="fleetLabel">Fleet off</span></div>
+        <div class="pill starter-free" id="starterPill" title="Free HUD stays free. Starter unlocks paid pins after valid 25 DOGE txid (not auto revenue)."><span class="dot"></span><a href="/pay/trek-starter" id="starterLabel">Free</a></div>
+        <div class="pill"><span id="battLabel">—</span></div>
+        <div class="pill"><span id="levelLabel">LVL 1</span></div>
+      </div>
+    </header>
+
+    <nav class="section-nav" aria-label="Trek sections">
+      <button type="button" class="active" data-stage="ar" id="tabAr">AR Map</button>
+      <button type="button" data-stage="adventures" id="tabAdv">Adventures</button>
+      <button type="button" data-stage="rewards" id="tabRew">Rewards</button>
+    </nav>
+
+    <!-- AR + quest panel -->
+    <section class="stage active" id="stageAr">
+      <div class="ar-viewport" id="arViewport" aria-label="AR hunt layer">
+        <div class="ar-sky"></div>
+        <div class="ar-ground"></div>
+        <div class="ar-horizon"></div>
+        <div class="ar-label">Hunt AR · use Tesla nav for routing</div>
+        <div class="ar-compass"><span id="compassN">N</span>HDG</div>
+        <div class="ring-pulse" aria-hidden="true"></div>
+        <div class="claim-ring" title="150m claim radius"></div>
+        <div class="vehicle" id="vehicle" aria-hidden="true"></div>
+        <div class="next-badge" id="nextBadge">Next: <strong id="nextStop">Pick adventure</strong></div>
+        <div class="map-toast" id="toast"></div>
+      </div>
+      <aside class="side">
+        <div class="hero-strip">
+          <div class="kicker">Active adventure</div>
+          <div class="title" id="missionTitle">Free roam</div>
+          <div class="sub" id="missionSub">Location quests unlock rewards within 150m. Park to claim.</div>
+        </div>
+        <div class="specs" aria-label="Quest specs">
+          <div class="spec"><b id="specPins">0</b><span>Pins</span></div>
+          <div class="spec"><b id="specRadius">150m</b><span>Radius</span></div>
+          <div class="spec"><b id="specXp">—</b><span>Bonus XP</span></div>
+          <div class="spec"><b id="specTier">—</b><span>Tier</span></div>
+        </div>
+        <div class="progress-meta">
+          <span id="progressLabel">Adventure progress</span>
+          <span id="progressCount">0/0</span>
+        </div>
+        <div class="progress-wrap" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="gps-chip" id="gpsChip" title="Distance from device GPS to selected pin">GPS · select a pin</div>
+        <div class="quest-list" id="questList" role="list"></div>
+        <div class="side-cta">
+          <button type="button" class="btn btn-secondary" id="btnSideNav">Navigate</button>
+          <button type="button" class="btn btn-secondary" id="btnSideNext">Next</button>
+          <button type="button" class="btn btn-primary" id="btnSideClaim">Claim</button>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Curated adventures (Model Y Explore tiers) -->
+    <section class="stage" id="stageAdventures">
+      <div class="adv-hero">
+        <h2>Explore Adventures</h2>
+        <p>Curated, location-based treks — same clarity as Explore Model Y. Pick a tier, load pins on AR, earn rewards.</p>
+      </div>
+      <div class="tier-tabs" id="tierTabs" role="tablist">
+        <button type="button" class="active" data-tier="all">All</button>
+        <button type="button" data-tier="explorer">Explorer</button>
+        <button type="button" data-tier="premium">Premium</button>
+        <button type="button" data-tier="longhaul">Long Haul</button>
+        <button type="button" data-tier="performance">Performance</button>
+      </div>
+      <div class="adv-grid" id="advGrid"></div>
+    </section>
+
+    <!-- Rewards ledger -->
+    <section class="stage" id="stageRewards">
+      <div class="reward-hero">
+        <div>
+          <h2>Rewards</h2>
+          <p>GPS-gated XP · badges · Trek Stars (in-game) from location claims</p>
+        </div>
+        <div class="reward-totals">
+          <div class="rt"><b id="statXp">0</b><span>XP</span></div>
+          <div class="rt"><b id="statTreasures">0</b><span>Caches</span></div>
+          <div class="rt"><b id="statDoge">0</b><span>Trek Stars</span></div>
+        </div>
+      </div>
+      <div class="honesty" id="rewardHonesty">
+        <strong>Honest rewards.</strong> Trek Stars are free in-game points from GPS claims — not cryptocurrency and not product revenue.
+        Real DOGE pay (optional Starter) is separate at <a href="/pay/trek-starter" style="color:#c2f970">/pay/trek-starter</a>
+        and only counts after <code>CUSTOMER_CONFIRMED</code>.
+      </div>
+      <div class="reward-actions">
+        <button type="button" class="btn" id="btnExportLedger">Export ledger</button>
+        <button type="button" class="btn" id="btnExportXyo" title="Starter unlock: XYO export pack">XYO export pack</button>
+        <button type="button" class="btn" id="btnResetProgress">Reset progress</button>
+      </div>
+      <div class="badge-grid" id="badgeGrid" aria-label="Unlocked badges"></div>
+      <div class="ledger" id="ledger"></div>
+    </section>
+
+    <footer>
+      <div class="voice-bar" id="voiceBar">Say: <strong>start trek</strong> · claim · next · adventures · fleet</div>
+      <div class="dock">
+        <button type="button" id="btnVoice" aria-label="Voice"><span class="ico">🎙</span>VOICE</button>
+        <button type="button" id="btnClaim" class="cta" aria-label="Claim"><span class="ico">◆</span>CLAIM</button>
+        <button type="button" id="btnNext" class="primary" aria-label="Next"><span class="ico">➤</span>NEXT</button>
+        <button type="button" id="btnFleet" aria-label="Fleet"><span class="ico">⚡</span>FLEET</button>
+        <button type="button" id="btnGrok" aria-label="Grok"><span class="ico">✦</span>GROK</button>
+      </div>
+      <div class="park-note">Park for claims · Drive = voice only · Independent Trek OS · Grok co-pilot · ref: Model Y UX patterns</div>
+    </footer>
+  </div>
+
+  <div class="overlay" id="rewardOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h3 id="rewardTitle">Cache claimed</h3>
+      <p id="rewardSub">Verified within hunt layer (sim until Fleet live).</p>
+      <div class="big" id="rewardBig">+120 XP</div>
+      <p class="note" id="rewardNote">Trek Stars = in-game points · not wallet DOGE</p>
+      <button type="button" class="btn btn-primary" id="rewardOk">Continue trek</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const CLAIM_RADIUS_M = 150;
+      const STORAGE_KEY = "trek_ar_progress_v1";
+      const CLAIM_IDS_KEY = "trek_ar_claim_ids_v1";
+
+      /* Map layout % (HUD) — coords come from fleet pins API when available */
+      const PIN_LAYOUT = {
+        helen: { x: 22, y: 38 },
+        "anna-ruby": { x: 40, y: 28 },
+        yonah: { x: 68, y: 32 },
+        cleveland: { x: 52, y: 54 },
+        sautee: { x: 30, y: 62 },
+        daytona: { x: 78, y: 68 },
+        raven: { x: 48, y: 22 },
+        unicoi: { x: 34, y: 44 },
+        brasstown: { x: 58, y: 18 },
+        tallulah: { x: 86, y: 42 },
+        smithgall: { x: 18, y: 48 },
+      };
+
+      /* Fallback seed — must match server TREK_PINS (lat/lon for Navigate + offline) */
+      let PINS = [
+        { id: "helen", name: "Helen", x: 22, y: 38, reward: "Alpine Crown", km: 4.2, lat: 34.7018, lon: -83.7271 },
+        { id: "anna-ruby", name: "Anna Ruby Falls", x: 40, y: 28, reward: "Falls Guardian", km: 7.1, lat: 34.7565, lon: -83.7131 },
+        { id: "yonah", name: "Yonah Mountain", x: 68, y: 32, reward: "Vineyard Overlord", km: 11.4, lat: 34.6373, lon: -83.7138 },
+        { id: "cleveland", name: "Cleveland GA", x: 52, y: 54, reward: "Summit Crown", km: 2.8, lat: 34.597, lon: -83.7632 },
+        { id: "sautee", name: "Sautee Nacoochee", x: 30, y: 62, reward: "Mound Relic", km: 9.0, lat: 34.6837, lon: -83.6757 },
+        { id: "daytona", name: "Daytona CT Demo", x: 78, y: 68, reward: "Demo Drive Vet", km: 420, lat: 29.214468, lon: -81.090715 },
+        { id: "raven", name: "Raven Cliff", x: 48, y: 22, reward: "Cliff Walker", km: 14.2, lat: 34.7364, lon: -83.7885 },
+        { id: "unicoi", name: "Unicoi State Park", x: 34, y: 44, reward: "Lake Cache", km: 5.5, lat: 34.7283, lon: -83.7225 },
+      ];
+
+      /* Curated adventures — Model Y tier analogs */
+      const ADVENTURES = [
+        {
+          id: "free",
+          name: "Free roam",
+          tier: "explorer",
+          tierLabel: "Explorer",
+          blurb: "Open map. Any pin. First-win friendly — like base Model Y clarity.",
+          stops: [],
+          xp: 0,
+          diff: "Easy",
+          time: "∞",
+          visual: "Open world",
+        },
+        {
+          id: "daytona-ct",
+          name: "Daytona Cybertruck",
+          tier: "explorer",
+          tierLabel: "Explorer",
+          blurb: "Single landmark quest. Real Demo Drive coords seed. Fast claim loop.",
+          stops: ["daytona"],
+          xp: 200,
+          diff: "Easy",
+          time: "1h",
+          visual: "Landmark",
+        },
+        {
+          id: "bavarian",
+          name: "Bavarian Legends",
+          tier: "premium",
+          tierLabel: "Premium",
+          blurb: "Helen · Sautee · Cleveland. Alpine heritage multi-stop — Premium range energy.",
+          stops: ["helen", "sautee", "cleveland"],
+          xp: 380,
+          diff: "Med",
+          time: "4h",
+          visual: "Regional",
+        },
+        {
+          id: "waterfall",
+          name: "Waterfall Warriors",
+          tier: "premium",
+          tierLabel: "Premium",
+          blurb: "Anna Ruby · Helen · Yonah. North GA cascade hunt with cabin-ready XP.",
+          stops: ["anna-ruby", "helen", "yonah"],
+          xp: 450,
+          diff: "Hard",
+          time: "5h",
+          visual: "Cascades",
+        },
+        {
+          id: "blue-ridge",
+          name: "Blue Ridge Long Haul",
+          tier: "longhaul",
+          tierLabel: "Long Haul",
+          blurb: "Extended wheelbase of story: Unicoi · Raven Cliff · Yonah · Cleveland. More stops, more reward.",
+          stops: ["unicoi", "raven", "yonah", "cleveland"],
+          xp: 560,
+          diff: "Hard",
+          time: "7h",
+          visual: "Long haul",
+        },
+        {
+          id: "giga",
+          name: "Giga Mega Drop",
+          tier: "performance",
+          tierLabel: "Performance",
+          blurb: "Flagship multi-cache sprint. High XP, tight discipline — Performance tier energy.",
+          stops: ["cleveland", "yonah", "helen", "sautee", "anna-ruby", "raven"],
+          xp: 720,
+          diff: "Legend",
+          time: "8h",
+          visual: "Flagship",
+        },
+        {
+          id: "super-c2c",
+          name: "Supercharger Relay",
+          tier: "performance",
+          tierLabel: "Performance",
+          blurb: "Energy-aware relay quest. Claim caches between charge stops. Efficiency = XP.",
+          stops: ["cleveland", "unicoi", "helen", "anna-ruby"],
+          xp: 500,
+          diff: "Hard",
+          time: "6h",
+          visual: "Energy",
+        },
+        {
+          id: "starter-summit",
+          name: "Starter Summit Circuit",
+          tier: "premium",
+          tierLabel: "Starter",
+          blurb: "Paid unlock: Brasstown · Tallulah · Smithgall. Free HUD stays free — this circuit needs Starter access after 25 DOGE txid.",
+          stops: ["brasstown", "tallulah", "smithgall"],
+          xp: 640,
+          diff: "Hard",
+          time: "6h",
+          visual: "Starter pack",
+          requiresStarter: true,
+        },
+      ];
+
+      const state = {
+        fleet: false,
+        sim: true,
+        battery: null,
+        level: 1,
+        xp: 0,
+        treasures: 0,
+        doge: 0,
+        missionId: "free",
+        selectedPin: null,
+        claimed: new Set(),
+        claimIds: new Set(),
+        ledger: [],
+        tierFilter: "all",
+        stage: "ar",
+        heading: 0,
+        authConfigured: false,
+        claiming: false,
+        devicePos: null,
+        pinSource: "fallback",
+        claimRadiusM: CLAIM_RADIUS_M,
+        vinTail: null,
+        vehicleId: null,
+        vehicleLoc: null,
+        displayName: null,
+        serverLedger: null,
+        starterAccess: false,
+        entitlementStatus: "free",
+        lockedPins: [],
+        connectEndpoint: "/api/fleet/auth/start",
+        disconnectEndpoint: "/api/fleet/auth/logout",
+      };
+
+      /**
+       * Fleet API base:
+       * - Prefer same-origin on tesla-trek.com (rewrite → v4) so cookies stick.
+       * - On apex, force www for OAuth start so redirect_uri host matches cookies.
+       */
+      const API_BASE = (function () {
+        const host = window.location.hostname || "";
+        if (host === "tesla-trek.com") return "https://www.tesla-trek.com";
+        if (host.includes("tesla-trek") || host === "localhost" || host === "127.0.0.1") return "";
+        return "https://www.tesla-trek.com";
+      })();
+
+      const $ = (id) => document.getElementById(id);
+      const arViewport = $("arViewport");
+
+      function apiUrl(path) {
+        return API_BASE + path;
+      }
+
+      function haversineM(lat1, lon1, lat2, lon2) {
+        const R = 6371000;
+        const toR = (d) => (d * Math.PI) / 180;
+        const dLat = toR(lat2 - lat1);
+        const dLon = toR(lon2 - lon1);
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(toR(lat1)) * Math.cos(toR(lat2)) * Math.sin(dLon / 2) ** 2;
+        return 2 * R * Math.asin(Math.min(1, Math.sqrt(a)));
+      }
+
+      function formatDist(m) {
+        if (m == null || !Number.isFinite(m)) return "—";
+        if (m < 1000) return Math.round(m) + " m";
+        return (m / 1000).toFixed(m < 10000 ? 1 : 0) + " km";
+      }
+
+      function loadProgress() {
+        try {
+          const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+          if (!raw || typeof raw !== "object") return;
+          if (Array.isArray(raw.claimed)) state.claimed = new Set(raw.claimed);
+          if (Array.isArray(raw.ledger)) state.ledger = raw.ledger.slice(0, 100);
+          if (typeof raw.xp === "number") state.xp = raw.xp;
+          if (typeof raw.level === "number") state.level = raw.level;
+          if (typeof raw.treasures === "number") state.treasures = raw.treasures;
+          if (typeof raw.doge === "number") state.doge = raw.doge;
+          if (typeof raw.missionId === "string") state.missionId = raw.missionId;
+          if (typeof raw.selectedPin === "string") state.selectedPin = raw.selectedPin;
+        } catch (_) {}
+        try {
+          const ids = JSON.parse(localStorage.getItem(CLAIM_IDS_KEY) || "[]");
+          if (Array.isArray(ids)) state.claimIds = new Set(ids);
+        } catch (_) {}
+      }
+
+      function saveProgress() {
+        try {
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+              claimed: [...state.claimed],
+              ledger: state.ledger.slice(0, 100),
+              xp: state.xp,
+              level: state.level,
+              treasures: state.treasures,
+              doge: state.doge,
+              missionId: state.missionId,
+              selectedPin: state.selectedPin,
+              ts: Date.now(),
+            })
+          );
+          localStorage.setItem(CLAIM_IDS_KEY, JSON.stringify([...state.claimIds].slice(-200)));
+        } catch (_) {}
+      }
+
+      function mergePinsFromApi(list) {
+        if (!Array.isArray(list) || !list.length) return;
+        PINS = list.map((p, i) => {
+          const layout = PIN_LAYOUT[p.id] || { x: 20 + (i % 4) * 18, y: 25 + Math.floor(i / 4) * 18 };
+          return {
+            id: p.id,
+            name: p.name,
+            reward: p.reward,
+            lat: p.lat,
+            lon: p.lon,
+            km: p.km,
+            x: layout.x,
+            y: layout.y,
+          };
+        });
+        state.pinSource = "api";
+      }
+
+      async function loadPinsCatalog() {
+        try {
+          const res = await fetch(apiUrl("/api/fleet/pins"), { credentials: "include" });
+          if (!res.ok) throw new Error("pins " + res.status);
+          const data = await res.json();
+          if (data.radius_meters) state.claimRadiusM = Number(data.radius_meters) || CLAIM_RADIUS_M;
+          mergePinsFromApi(data.pins);
+          state.starterAccess = !!data.starter_access;
+          if (data.entitlement && data.entitlement.status) {
+            state.entitlementStatus = data.entitlement.status;
+          }
+          state.lockedPins = Array.isArray(data.locked_pins) ? data.locked_pins : [];
+          const rEl = $("specRadius");
+          if (rEl) rEl.textContent = state.claimRadiusM + "m";
+          updateHud();
+        } catch (e) {
+          console.warn("pins catalog", e);
+          state.pinSource = "fallback";
+        }
+      }
+
+      function applyServerLedger(ledger, opts) {
+        if (!ledger) return;
+        state.serverLedger = ledger;
+        const merge = !opts || opts.merge !== false;
+        if (Array.isArray(ledger.claimed_pins)) {
+          if (merge) {
+            ledger.claimed_pins.forEach((id) => state.claimed.add(id));
+          } else {
+            state.claimed = new Set(ledger.claimed_pins);
+          }
+        }
+        if (ledger.totals) {
+          // Prefer server totals when higher (authoritative floor)
+          if (typeof ledger.totals.xp === "number" && ledger.totals.xp > state.xp) {
+            state.xp = ledger.totals.xp;
+          }
+          if (typeof ledger.totals.doge_star === "number" && ledger.totals.doge_star > state.doge) {
+            state.doge = ledger.totals.doge_star;
+          }
+          if (typeof ledger.totals.treasures === "number" && ledger.totals.treasures > state.treasures) {
+            state.treasures = ledger.totals.treasures;
+          }
+        }
+        if (Array.isArray(ledger.claims) && ledger.claims.length) {
+          // Prepend server rows missing from local ledger
+          const seen = new Set(state.ledger.map((r) => r.claim_id).filter(Boolean));
+          const incoming = [];
+          ledger.claims.forEach((c) => {
+            if (c.claim_id && seen.has(c.claim_id)) return;
+            if (c.claim_id) seen.add(c.claim_id);
+            incoming.push({
+              title: (c.reward_badge || "Cache") + " · " + (c.pin_name || c.pin_id),
+              when:
+                (c.claimed_at ? new Date(c.claimed_at).toLocaleString() : "") +
+                (c.device_to_pin_m != null ? " · " + c.device_to_pin_m + "m" : ""),
+              gain: "+" + (c.xp || 0) + " XP · +" + (c.doge_star || 0) + " Trek Stars",
+              mode: c.status === "verified" ? "fleet" : "device",
+              claim_id: c.claim_id,
+              pin_id: c.pin_id,
+              status: c.status,
+              server: true,
+            });
+          });
+          if (incoming.length) {
+            state.ledger = incoming.concat(state.ledger).slice(0, 100);
+          }
+        }
+        saveProgress();
+      }
+
+      async function refreshFleetStatus() {
+        try {
+          const res = await fetch(apiUrl("/api/fleet/status"), { credentials: "include" });
+          const data = await res.json();
+          state.authConfigured = !!data.auth_configured;
+          state.fleet = !!data.fleet_linked;
+          state.vinTail = data.vin_tail || null;
+          state.vehicleId = data.vehicle_id || null;
+          state.displayName = data.display_name || null;
+          if (typeof data.battery_level === "number") state.battery = data.battery_level;
+          if (data.claim_radius_m) state.claimRadiusM = Number(data.claim_radius_m) || CLAIM_RADIUS_M;
+          if (data.connect_endpoint) state.connectEndpoint = data.connect_endpoint;
+          if (data.disconnect_endpoint) state.disconnectEndpoint = data.disconnect_endpoint;
+          if (data.vehicle_location) {
+            state.vehicleLoc = data.vehicle_location;
+          } else {
+            state.vehicleLoc = null;
+          }
+          if (state.fleet) {
+            state.sim = false;
+          } else {
+            state.sim = true;
+          }
+          if (data.ledger) applyServerLedger(data.ledger);
+          if (typeof data.starter_access === "boolean") state.starterAccess = data.starter_access;
+          if (data.entitlement && data.entitlement.status) {
+            state.entitlementStatus = data.entitlement.status;
+            state.starterAccess = data.entitlement.access === true || data.starter_access;
+          }
+          updateHud();
+          return data;
+        } catch (e) {
+          console.warn("fleet status", e);
+          return null;
+        }
+      }
+
+      async function syncServerClaims() {
+        try {
+          const res = await fetch(apiUrl("/api/fleet/claims"), { credentials: "include" });
+          if (!res.ok) return null;
+          const data = await res.json();
+          applyServerLedger(data);
+          updateHud();
+          return data;
+        } catch (e) {
+          console.warn("claims sync", e);
+          return null;
+        }
+      }
+
+      function getDevicePosition() {
+        return new Promise((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error("Geolocation unavailable in this browser"));
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const p = {
+                lat: pos.coords.latitude,
+                lon: pos.coords.longitude,
+                accuracy: pos.coords.accuracy,
+              };
+              state.devicePos = p;
+              resolve(p);
+            },
+            (err) => reject(new Error(err.message || "GPS denied")),
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 }
+          );
+        });
+      }
+
+      function startGpsWatch() {
+        if (!navigator.geolocation || startGpsWatch._id != null) return;
+        startGpsWatch._id = navigator.geolocation.watchPosition(
+          (pos) => {
+            state.devicePos = {
+              lat: pos.coords.latitude,
+              lon: pos.coords.longitude,
+              accuracy: pos.coords.accuracy,
+            };
+            updateGpsChip();
+            renderPins();
+          },
+          () => {},
+          { enableHighAccuracy: true, maximumAge: 8000, timeout: 25000 }
+        );
+      }
+
+      function distToPin(pin) {
+        if (!pin || pin.lat == null || pin.lon == null || !state.devicePos) return null;
+        return haversineM(state.devicePos.lat, state.devicePos.lon, pin.lat, pin.lon);
+      }
+
+      function updateGpsChip() {
+        const chip = $("gpsChip");
+        if (!chip) return;
+        const p = pinById(state.selectedPin);
+        if (!p) {
+          chip.className = "gps-chip";
+          chip.textContent = state.devicePos
+            ? "GPS ±" + Math.round(state.devicePos.accuracy || 0) + "m · select pin"
+            : "GPS · allow location for live distance";
+          return;
+        }
+        const d = distToPin(p);
+        const acc = state.devicePos ? Math.round(state.devicePos.accuracy || 0) : null;
+        if (d == null) {
+          chip.className = "gps-chip";
+          chip.textContent = p.name + " · waiting for GPS";
+          return;
+        }
+        const inRange = d <= state.claimRadiusM;
+        chip.className = "gps-chip " + (inRange ? "near" : "far");
+        let text =
+          p.name +
+          " · device " +
+          formatDist(d) +
+          (inRange ? " · IN RANGE" : " · need ≤" + state.claimRadiusM + "m") +
+          (acc != null ? " · ±" + acc + "m" : "");
+        if (state.fleet && state._vehicleDistM != null) {
+          const vIn = state._vehicleDistM <= state.claimRadiusM;
+          text +=
+            " · fleet " +
+            formatDist(state._vehicleDistM) +
+            (vIn ? " ✓" : " ✗");
+        } else if (state.fleet && state.vehicleLoc && state.vehicleLoc.error) {
+          text += " · fleet: " + String(state.vehicleLoc.error).slice(0, 40);
+        } else if (!state.fleet) {
+          text += " · link Fleet for vehicle GPS";
+        }
+        chip.textContent = text;
+      }
+
+      function navigateToPin(id) {
+        const p = pinById(id || state.selectedPin);
+        if (!p) {
+          toast("Select a pin with coordinates first");
+          return;
+        }
+        if (p.lat == null || p.lon == null) {
+          toast("No coordinates for this pin");
+          return;
+        }
+        // Universal maps deep link — Tesla browser / phone open external maps
+        const url =
+          "https://www.google.com/maps/dir/?api=1&destination=" +
+          encodeURIComponent(p.lat + "," + p.lon) +
+          "&travelmode=driving";
+        toast("Navigating to " + p.name + "…");
+        window.open(url, "_blank", "noopener");
+      }
+
+      function adventureProgress() {
+        const m = mission();
+        if (!m.stops.length) return { done: 0, total: 0, pct: 0 };
+        const done = m.stops.filter((s) => state.claimed.has(s)).length;
+        const total = m.stops.length;
+        return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+      }
+
+      function toast(msg) {
+        const el = $("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => el.classList.remove("show"), 2200);
+      }
+
+      function pinById(id) {
+        return PINS.find((p) => p.id === id);
+      }
+
+      function mission() {
+        return ADVENTURES.find((m) => m.id === state.missionId) || ADVENTURES[0];
+      }
+
+      // Cached stage/tab nodes — avoid querySelectorAll on every tab click (INP)
+      
+      function paintRewardStats() {
+        const xp = $("statXp");
+        const tr = $("statTreasures");
+        const dg = $("statDoge");
+        if (xp) xp.textContent = String(state.xp || 0);
+        if (tr) tr.textContent = String(state.claimed ? state.claimed.size : 0);
+        if (dg) dg.textContent = String(state.doge || 0);
+      }
+
+      const STAGE_IDS = { ar: "stageAr", adventures: "stageAdventures", rewards: "stageRewards" };
+      const TAB_IDS = { ar: "tabAr", adventures: "tabAdv", rewards: "tabRew" };
+      let stageNodes = null;
+      let tabNodes = null;
+      function cacheStageNodes() {
+        if (!stageNodes) {
+          stageNodes = Object.fromEntries(
+            Object.entries(STAGE_IDS).map(([k, id]) => [k, document.getElementById(id)])
+          );
+          tabNodes = Object.fromEntries(
+            Object.entries(TAB_IDS).map(([k, id]) => [k, document.getElementById(id)])
+          );
+        }
+      }
+      function setStage(name) {
+        if (!STAGE_IDS[name]) return;
+        // Fast path: already on this stage
+        if (state.stage === name) {
+          cacheStageNodes();
+          if (stageNodes[name] && stageNodes[name].classList.contains("active")) return;
+        }
+        const prev = state.stage;
+        state.stage = name;
+        cacheStageNodes();
+        // Toggle only the two involved stages/tabs when possible
+        if (prev && stageNodes[prev] && prev !== name) {
+          stageNodes[prev].classList.remove("active");
+          if (tabNodes[prev]) tabNodes[prev].classList.remove("active");
+        } else {
+          Object.values(stageNodes).forEach((s) => s && s.classList.remove("active"));
+          Object.values(tabNodes).forEach((b) => b && b.classList.remove("active"));
+        }
+        if (stageNodes[name]) stageNodes[name].classList.add("active");
+        if (tabNodes[name]) tabNodes[name].classList.add("active");
+        // Defer non-critical panel refresh work off the click path
+        const idle = window.requestIdleCallback || function (cb) { return setTimeout(cb, 1); };
+        idle(function () {
+          if (name === "rewards") {
+            // stats are already single-sourced in state; only paint if dirty
+            if (typeof paintRewardStats === "function") paintRewardStats();
+          }
+        }, { timeout: 200 });
+      }
+
+      function renderArRays() {
+        arViewport.querySelectorAll(".ar-ray").forEach((n) => n.remove());
+        const m = mission();
+        const targets = m.stops.length
+          ? m.stops.filter((s) => !state.claimed.has(s)).slice(0, 4)
+          : PINS.filter((p) => !state.claimed.has(p.id)).slice(0, 4).map((p) => p.id);
+        targets.forEach((id, i) => {
+          const p = pinById(id);
+          if (!p) return;
+          const ray = document.createElement("div");
+          ray.className = "ar-ray";
+          const angle = -40 + i * 28 + (p.x - 50) * 0.4;
+          ray.style.transform = "translate(-50%, -100%) rotate(" + angle + "deg)";
+          arViewport.appendChild(ray);
+        });
+      }
+
+      function renderPins() {
+        arViewport.querySelectorAll(".pin").forEach((n) => n.remove());
+        const m = mission();
+        const showIds = m.stops.length ? new Set(m.stops) : null;
+        // Live free/starter pins from API
+        PINS.forEach((p) => {
+          if (showIds && !showIds.has(p.id) && state.missionId !== "free") return;
+          const d = distToPin(p);
+          const inRange = d != null && d <= state.claimRadiusM;
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className =
+            "pin" +
+            (state.selectedPin === p.id ? " selected" : "") +
+            (state.claimed.has(p.id) ? " claimed" : "") +
+            (inRange && !state.claimed.has(p.id) ? " in-range" : "");
+          b.style.left = p.x + "%";
+          b.style.top = p.y + "%";
+          let distLabel = p.km != null ? p.km + " km" : "—";
+          if (state.claimed.has(p.id)) distLabel = "CLAIMED";
+          else if (d != null) distLabel = formatDist(d);
+          b.innerHTML =
+            p.name.split(" ")[0] +
+            '<span class="dist">' +
+            distLabel +
+            "</span>";
+          b.setAttribute("aria-label", p.name + (d != null ? " " + formatDist(d) : ""));
+          b.addEventListener("click", () => selectPin(p.id));
+          arViewport.appendChild(b);
+        });
+        // Locked starter pins (shown dashed when free tier; hidden once unlocked into PINS)
+        if (!state.starterAccess && Array.isArray(state.lockedPins)) {
+          state.lockedPins.forEach((lp, i) => {
+            if (showIds && !showIds.has(lp.id) && state.missionId !== "free") return;
+            if (pinById(lp.id)) return;
+            const layout = PIN_LAYOUT[lp.id] || { x: 15 + (i % 3) * 25, y: 70 + Math.floor(i / 3) * 10 };
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "pin locked";
+            b.style.left = layout.x + "%";
+            b.style.top = layout.y + "%";
+            b.innerHTML =
+              (lp.name || lp.id).split(" ")[0] +
+              '<span class="dist">LOCKED</span>';
+            b.setAttribute("aria-label", (lp.name || lp.id) + " · Starter locked");
+            b.addEventListener("click", () => {
+              toast("🔒 " + (lp.name || lp.id) + " needs Starter · 25 DOGE");
+              $("voiceBar").innerHTML =
+                'Starter pin locked · <a href="/pay/trek-starter" style="color:#c2f970">Pay 25 DOGE →</a> · free HUD stays free';
+            });
+            arViewport.appendChild(b);
+          });
+        }
+        renderArRays();
+      }
+
+      function renderQuests() {
+        const list = $("questList");
+        list.innerHTML = "";
+        const m = mission();
+        const stops = m.stops.length ? m.stops : [];
+        if (!stops.length) {
+          list.innerHTML =
+            '<div class="empty-ledger" style="padding:20px">Free roam — tap AR pins or open <strong>Adventures</strong> for curated routes.</div>';
+          return;
+        }
+        stops.forEach((id, i) => {
+          const p = pinById(id);
+          const done = state.claimed.has(id);
+          const remaining = stops.filter((s) => !state.claimed.has(s));
+          const active = !done && remaining[0] === id;
+          const row = document.createElement("button");
+          row.type = "button";
+          row.className = "quest-row" + (active ? " active" : "") + (done ? " done" : "");
+          row.innerHTML =
+            '<div class="q-num">' +
+            (done ? "✓" : i + 1) +
+            '</div><div><div class="q-name">' +
+            (p ? p.name : id) +
+            '</div><div class="q-meta">' +
+            (done ? "Claimed" : active ? "Navigate · then claim &lt;150m" : "Locked until previous") +
+            '</div></div><div class="q-reward">' +
+            (p ? p.reward : "Cache") +
+            "</div>";
+          row.addEventListener("click", () => {
+            if (done) return toast("Already claimed");
+            selectPin(id);
+          });
+          list.appendChild(row);
+        });
+      }
+
+      function renderAdventures() {
+        const grid = $("advGrid");
+        grid.innerHTML = "";
+        ADVENTURES.filter((a) => state.tierFilter === "all" || a.tier === state.tierFilter).forEach((a) => {
+          const locked = a.requiresStarter && !state.starterAccess;
+          const card = document.createElement("article");
+          card.className =
+            "adv-card" +
+            (a.id === state.missionId ? " active" : "") +
+            (locked ? " locked" : "");
+          card.innerHTML =
+            '<div class="visual">' +
+            a.visual +
+            " · " +
+            a.tierLabel +
+            (locked ? " · LOCKED" : state.starterAccess && a.requiresStarter ? " · UNLOCKED" : "") +
+            '</div><div class="body"><h3>' +
+            a.name +
+            "</h3><p>" +
+            a.blurb +
+            (locked
+              ? ' <a href="/pay/trek-starter" style="color:#c2f970">Unlock Starter →</a>'
+              : "") +
+            '</p><div class="adv-specs"><div><b>' +
+            (a.stops.length || "∞") +
+            '</b><span>Stops</span></div><div><b>' +
+            (a.xp || "—") +
+            '</b><span>Bonus XP</span></div><div><b>' +
+            a.time +
+            '</b><span>Time</span></div></div></div><div class="foot">' +
+            '<button type="button" class="btn btn-secondary" data-learn="' +
+            a.id +
+            '">Details</button>' +
+            (locked
+              ? '<a class="btn btn-primary" href="/pay/trek-starter" data-unlock="' +
+                a.id +
+                '">Unlock 25 Ð</a>'
+              : '<button type="button" class="btn btn-primary" data-start="' +
+                a.id +
+                '">Order trek</button>') +
+            "</div>";
+          grid.appendChild(card);
+        });
+        grid.querySelectorAll("[data-start]").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const id = btn.getAttribute("data-start");
+            if (!startMission(id)) return;
+            setStage("ar");
+          });
+        });
+        grid.querySelectorAll("[data-unlock]").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toast("🔒 Starter Summit needs 25 DOGE · free HUD stays free");
+          });
+        });
+        grid.querySelectorAll("[data-learn]").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const a = ADVENTURES.find((x) => x.id === btn.getAttribute("data-learn"));
+            if (!a) return;
+            const lockNote = a.requiresStarter && !state.starterAccess ? " · LOCKED (Starter)" : "";
+            toast(a.name + " · " + a.diff + " · " + (a.stops.length || 0) + " pins · +" + a.xp + " XP" + lockNote);
+          });
+        });
+      }
+
+      function renderLedger() {
+        const el = $("ledger");
+        if (!state.ledger.length) {
+          el.innerHTML =
+            '<div class="empty-ledger">No claims yet.<br/>Start an adventure, reach a pin, claim within ' +
+            state.claimRadiusM +
+            "m.</div>";
+        } else {
+          el.innerHTML = "";
+          state.ledger.forEach((row) => {
+            const d = document.createElement("div");
+            d.className = "ledger-row";
+            const mode =
+              row.mode === "fleet"
+                ? '<span class="mode-tag">FLEET</span>'
+                : row.mode === "device"
+                  ? '<span class="mode-tag device">DEVICE</span>'
+                  : "";
+            d.innerHTML =
+              '<div class="badge-ico">◆</div><div><div class="name">' +
+              row.title +
+              mode +
+              '</div><div class="when">' +
+              row.when +
+              '</div></div><div class="gain">' +
+              row.gain +
+              "</div>";
+            el.appendChild(d);
+          });
+        }
+        renderBadges();
+      }
+
+      function renderBadges() {
+        const grid = $("badgeGrid");
+        if (!grid) return;
+        const badges = [];
+        state.claimed.forEach((id) => {
+          const p = pinById(id);
+          if (p) badges.push({ id, name: p.name, reward: p.reward });
+        });
+        if (!badges.length) {
+          grid.innerHTML = "";
+          return;
+        }
+        grid.innerHTML = badges
+          .map(
+            (b) =>
+              '<div class="badge-card"><b>' +
+              b.reward +
+              "</b><span>" +
+              b.name +
+              "</span></div>"
+          )
+          .join("");
+      }
+
+      function updateHud() {
+        const m = mission();
+        $("missionTitle").textContent = m.name;
+        $("missionSub").textContent = m.blurb;
+        $("specPins").textContent = String(m.stops.length || PINS.length);
+        $("specXp").textContent = m.xp ? String(m.xp) : "—";
+        $("specTier").textContent = m.tierLabel || "—";
+        const rEl = $("specRadius");
+        if (rEl) rEl.textContent = state.claimRadiusM + "m";
+
+        let next = "Pick adventure";
+        if (m.stops.length) {
+          const remaining = m.stops.filter((s) => !state.claimed.has(s));
+          next = remaining.length ? pinById(remaining[0])?.name || remaining[0] : "Adventure complete";
+        } else if (state.selectedPin) {
+          next = pinById(state.selectedPin)?.name || state.selectedPin;
+        }
+        $("nextStop").textContent = next;
+
+        const prog = adventureProgress();
+        const bar = $("progressBar");
+        const pl = $("progressLabel");
+        const pc = $("progressCount");
+        if (bar) bar.style.width = (m.stops.length ? prog.pct : 0) + "%";
+        if (pl) {
+          pl.textContent = m.stops.length
+            ? m.name + " progress"
+            : "Free roam · " + state.claimed.size + " caches";
+        }
+        if (pc) {
+          pc.textContent = m.stops.length
+            ? prog.done + "/" + prog.total
+            : state.claimed.size + " claimed";
+        }
+
+        $("statXp").textContent = String(state.xp);
+        $("statTreasures").textContent = String(state.treasures);
+        $("statDoge").textContent = String(state.doge);
+        $("levelLabel").textContent = "LVL " + state.level;
+        $("battLabel").textContent =
+          state.battery != null ? state.battery + "%" : "Batt —";
+
+        const modePill = $("modePill");
+        const fleetPill = $("fleetPill");
+        if (state.sim) {
+          modePill.className = "pill sim";
+          $("modeLabel").textContent = "SIM";
+        } else {
+          modePill.className = "pill live";
+          $("modeLabel").textContent = "LIVE";
+        }
+        if (state.fleet) {
+          fleetPill.className = "pill fleet-on live";
+          $("fleetLabel").textContent = state.vinTail
+            ? "Fleet ·…" + state.vinTail
+            : "Fleet on";
+        } else {
+          fleetPill.className = "pill";
+          $("fleetLabel").textContent = "Fleet off";
+        }
+
+        // Free → paid Starter pill (access only — not product revenue)
+        const starterPill = $("starterPill");
+        const starterLabel = $("starterLabel");
+        if (starterPill && starterLabel) {
+          const st = state.entitlementStatus || "free";
+          if (st === "confirmed") {
+            starterPill.className = "pill starter-confirmed";
+            starterLabel.textContent = "Starter ✓";
+            starterLabel.removeAttribute("href");
+            starterPill.title =
+              "Starter access confirmed (explorer/ops). Empire revenue books still need CUSTOMER_CONFIRMED.";
+          } else if (st === "provisional" || state.starterAccess) {
+            starterPill.className = "pill starter-provisional";
+            starterLabel.textContent = "Starter ·";
+            starterLabel.removeAttribute("href");
+            starterPill.title =
+              "Provisional Starter access after valid txid. Paid pins unlocked. Not product revenue yet.";
+          } else {
+            starterPill.className = "pill starter-free";
+            starterLabel.textContent = "Free";
+            starterLabel.setAttribute("href", "/pay/trek-starter");
+            starterPill.title =
+              "Free HUD stays free. Tap to unlock Starter (25 DOGE) for paid pins.";
+          }
+        }
+
+        // Vehicle GPS chip (when linked)
+        const vLoc = state.vehicleLoc;
+        if (state.fleet && vLoc && vLoc.latitude != null && state.selectedPin) {
+          const p = pinById(state.selectedPin);
+          if (p && p.lat != null) {
+            const vd = haversineM(vLoc.latitude, vLoc.longitude, p.lat, p.lon);
+            // augment gps chip later via updateGpsChip using vehicle dist
+            state._vehicleDistM = vd;
+          }
+        } else {
+          state._vehicleDistM = null;
+        }
+
+        renderPins();
+        renderQuests();
+        // Pre-render adventures once (tier filter reuses same function); idle if not visible
+        if (state.stage === "adventures") {
+          renderAdventures();
+        } else {
+          const idle = window.requestIdleCallback || function (cb) { return setTimeout(cb, 32); };
+          idle(function () { renderAdventures(); }, { timeout: 500 });
+        }
+        renderLedger();
+        updateGpsChip();
+      }
+
+      function selectPin(id) {
+        state.selectedPin = id;
+        const p = pinById(id);
+        if (p) {
+          const d = distToPin(p);
+          toast(
+            "📍 " +
+              p.name +
+              " · " +
+              (d != null ? formatDist(d) : p.km != null ? p.km + " km" : "pin") +
+              " · " +
+              (p.reward || "cache")
+          );
+        }
+        saveProgress();
+        updateHud();
+      }
+
+      function startMission(id) {
+        const a = ADVENTURES.find((x) => x.id === id);
+        if (!a) {
+          toast("Unknown adventure");
+          return false;
+        }
+        if (a.requiresStarter && !state.starterAccess) {
+          toast("🔒 Starter Summit needs Starter access · 25 DOGE");
+          $("voiceBar").innerHTML =
+            'Locked adventure · <a href="/pay/trek-starter" style="color:#c2f970">Unlock Starter 25 DOGE →</a> · free roam stays free';
+          setStage("adventures");
+          return false;
+        }
+        state.missionId = id;
+        const m = mission();
+        if (m.stops[0]) selectPin(m.stops[0]);
+        else {
+          state.selectedPin = null;
+          toast("◆ Free roam — pick any AR pin");
+        }
+        toast("🚀 " + m.name);
+        saveProgress();
+        updateHud();
+        return true;
+      }
+
+      function nextStop() {
+        const m = mission();
+        if (!m.stops.length) {
+          toast("Open Adventures for guided stops");
+          setStage("adventures");
+          return;
+        }
+        const remaining = m.stops.filter((s) => !state.claimed.has(s));
+        if (!remaining.length) {
+          toast("✅ All pins claimed — pick a new adventure");
+          setStage("adventures");
+          return;
+        }
+        selectPin(remaining[0]);
+        toast("Next → " + (pinById(remaining[0])?.name || remaining[0]));
+      }
+
+      async function claim() {
+        const id = state.selectedPin;
+        if (!id) {
+          toast("Select a pin first");
+          return;
+        }
+        if (state.claimed.has(id)) {
+          toast("Already claimed on this device");
+          return;
+        }
+        if (state.claiming) {
+          toast("Claim in progress…");
+          return;
+        }
+
+        // Soft client pre-check (server still authoritative)
+        const pin = pinById(id);
+        if (state.devicePos && pin && pin.lat != null) {
+          const pre = distToPin(pin);
+          if (pre != null && pre > state.claimRadiusM * 3) {
+            toast("Too far (" + formatDist(pre) + ") — drive closer, then park");
+            $("voiceBar").textContent =
+              "Pre-check: " + formatDist(pre) + " from " + pin.name + " (need ≤" + state.claimRadiusM + "m)";
+            return;
+          }
+        }
+
+        state.claiming = true;
+        toast("📡 Getting GPS + verifying claim…");
+        $("voiceBar").textContent = "Claim: reading device GPS… park for best accuracy";
+
+        try {
+          const pos = await getDevicePosition();
+          $("voiceBar").textContent =
+            "Claim: device ±" + Math.round(pos.accuracy || 0) + "m · checking pin + Fleet…";
+
+          const res = await fetch(apiUrl("/api/fleet/claim"), {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              pinId: id,
+              lat: pos.lat,
+              lon: pos.lon,
+              accuracy: pos.accuracy,
+              adventureId: state.missionId,
+              allowDeviceOnly: true,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok && !data.status) {
+            throw new Error(data.error || "Claim API " + res.status);
+          }
+
+          // Server ledger always authoritative when present
+          if (data.ledger) applyServerLedger(data.ledger);
+
+          // Idempotency: same claim_id already applied
+          if (data.claim_id && state.claimIds.has(data.claim_id)) {
+            toast("Claim already on ledger");
+            updateHud();
+            return;
+          }
+
+          if (data.status === "already_claimed" || data.error === "pin_already_claimed") {
+            state.claimed.add(id);
+            $("rewardTitle").textContent = "ALREADY CLAIMED";
+            $("rewardSub").textContent = data.message || "On server ledger for this player";
+            $("rewardBig").textContent = "server ledger";
+            const note = $("rewardNote");
+            if (note) note.textContent = "Server anti-replay · no double XP";
+            $("rewardOverlay").classList.add("open");
+            toast("◆ Already on server ledger");
+            saveProgress();
+            updateHud();
+            return;
+          }
+
+          if (data.error === "starter_required" || data.status === "locked") {
+            $("rewardTitle").textContent = "STARTER LOCKED";
+            $("rewardSub").textContent =
+              data.message ||
+              "This cache needs Starter access. Free HUD stays free — unlock via 25 DOGE.";
+            $("rewardBig").textContent = "25 DOGE";
+            const note = $("rewardNote");
+            if (note) {
+              note.innerHTML =
+                'Pay path: <a href="/pay/trek-starter" style="color:#c2f970">/pay/trek-starter</a> · provisional after valid txid · not auto revenue';
+            }
+            $("rewardOverlay").classList.add("open");
+            toast("🔒 Starter pin — unlock at /pay/trek-starter");
+            $("voiceBar").innerHTML =
+              'Starter required · <a href="/pay/trek-starter" style="color:#c2f970">Unlock 25 DOGE →</a>';
+            updateHud();
+            return;
+          }
+
+          const ok = data.success || data.status === "verified" || data.status === "sim_verified";
+          const p = pinById(id);
+          const xpGain = data.reward?.xp || 0;
+          const dogeGain = data.reward?.doge_star || 0;
+          const dist = data.distance_meters?.device_to_pin;
+          const fleetDist = data.distance_meters?.vehicle_to_pin;
+          const mode = data.status === "verified" ? "fleet" : "device";
+
+          if (ok) {
+            if (data.claim_id) state.claimIds.add(data.claim_id);
+            state.claimed.add(id);
+            // Prefer server totals when returned
+            if (data.ledger?.totals) {
+              state.xp = data.ledger.totals.xp;
+              state.doge = data.ledger.totals.doge_star;
+              state.treasures = data.ledger.totals.treasures;
+            } else {
+              state.xp += xpGain;
+              state.treasures += 1;
+              state.doge += dogeGain;
+            }
+            while (state.xp >= state.level * 300) {
+              state.xp -= state.level * 300;
+              state.level += 1;
+            }
+            if (data.status === "verified") {
+              state.fleet = true;
+              state.sim = false;
+            }
+            state.ledger.unshift({
+              title: (data.pin?.reward || p?.reward || "Cache") + " · " + (data.pin?.name || p?.name || id),
+              when:
+                new Date().toLocaleString() +
+                (dist != null ? " · " + dist + "m" : "") +
+                (fleetDist != null ? " · fleet " + fleetDist + "m" : ""),
+              gain: "+" + xpGain + " XP · +" + dogeGain + " Trek Stars",
+              mode,
+              claim_id: data.claim_id || null,
+              pin_id: id,
+              status: data.status,
+              server: true,
+            });
+            $("rewardTitle").textContent = (data.pin?.reward || p?.reward || "CACHE").toUpperCase();
+            $("rewardSub").textContent = data.message || "Claim accepted";
+            $("rewardBig").textContent = "+" + xpGain + " XP  ·  +" + dogeGain + " Trek Stars";
+            const note = $("rewardNote");
+            if (note) {
+              const xyoHash =
+                data.xyo && data.xyo.content_hash
+                  ? " · XYO " + String(data.xyo.content_hash).slice(0, 12) + "…"
+                  : "";
+              note.textContent =
+                (mode === "fleet"
+                  ? "SERVER LEDGER · Fleet + device verified · "
+                  : "SERVER LEDGER · Device GPS · ") +
+                "Trek Stars = in-game points, not wallet DOGE" +
+                xyoHash;
+            }
+            $("rewardOverlay").classList.add("open");
+            toast(
+              (data.status === "verified" ? "✅ FLEET " : "◆ DEVICE ") +
+                "ledger · " +
+                (dist != null ? dist + "m to pin" : "ok")
+            );
+
+            const m = mission();
+            if (m.stops.length && m.stops.every((s) => state.claimed.has(s))) {
+              setTimeout(() => {
+                state.xp += m.xp;
+                state.doge += 15;
+                state.ledger.unshift({
+                  title: "Adventure complete · " + m.name,
+                  when: new Date().toLocaleString(),
+                  gain: "+" + m.xp + " bonus XP · +15 Trek Stars",
+                  mode: "bonus",
+                });
+                toast("✅ TREK COMPLETE +" + m.xp + " XP");
+                saveProgress();
+                updateHud();
+              }, 400);
+            }
+            saveProgress();
+          } else {
+            $("rewardTitle").textContent = (data.status || "REJECTED").toUpperCase();
+            $("rewardSub").textContent =
+              (data.message || "Not within " + state.claimRadiusM + "m") +
+              (dist != null ? " · device " + dist + "m" : "") +
+              (fleetDist != null ? " · fleet " + fleetDist + "m" : "");
+            $("rewardBig").textContent = "score " + (data.validation_score ?? "—");
+            const note = $("rewardNote");
+            if (note) {
+              note.textContent = state.fleet
+                ? "Need device + vehicle both ≤" + state.claimRadiusM + "m · park · wake car"
+                : "No reward · park closer or link Fleet for verified";
+            }
+            $("rewardOverlay").classList.add("open");
+            toast("❌ " + (data.message || "Claim rejected"));
+          }
+          updateHud();
+        } catch (e) {
+          toast("Claim failed: " + (e.message || e));
+          $("voiceBar").textContent = "Claim failed — allow location · park · retry · or link Fleet";
+        } finally {
+          state.claiming = false;
+        }
+      }
+
+      function exportLedger() {
+        const payload = {
+          version: 1,
+          exported_at: new Date().toISOString(),
+          level: state.level,
+          xp: state.xp,
+          treasures: state.treasures,
+          doge_stars: state.doge,
+          claimed_pins: [...state.claimed],
+          ledger: state.ledger,
+          note: "Trek Stars are in-game points from GPS claims — not on-chain DOGE revenue.",
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "trek-ar-rewards-" + Date.now() + ".json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        toast("Ledger exported (local file)");
+      }
+
+      async function exportXyoPack() {
+        if (!state.starterAccess) {
+          toast("🔒 XYO export pack needs Starter · 25 DOGE");
+          $("voiceBar").innerHTML =
+            'XYO pack locked · <a href="/pay/trek-starter" style="color:#c2f970">Unlock Starter →</a>';
+          return;
+        }
+        toast("📦 Fetching XYO export pack…");
+        try {
+          const res = await fetch(apiUrl("/api/fleet/xyo/export"), { credentials: "include" });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            if (data.error === "starter_required") {
+              toast("🔒 Starter required for XYO export");
+              return;
+            }
+            throw new Error(data.message || data.error || "export failed");
+          }
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "trek-xyo-export-pack-" + Date.now() + ".json";
+          a.click();
+          URL.revokeObjectURL(a.href);
+          toast("📦 XYO export pack saved (not on-chain revenue)");
+        } catch (e) {
+          toast("XYO export failed: " + (e.message || e));
+        }
+      }
+
+      function resetProgress() {
+        if (!confirm("Reset local AR progress on this device? Server claims are not deleted.")) return;
+        state.claimed = new Set();
+        state.claimIds = new Set();
+        state.ledger = [];
+        state.xp = 0;
+        state.level = 1;
+        state.treasures = 0;
+        state.doge = 0;
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(CLAIM_IDS_KEY);
+        } catch (_) {}
+        toast("Local progress cleared");
+        updateHud();
+      }
+
+      function toggleFleet() {
+        // Already linked → offer disconnect or refresh
+        if (state.fleet) {
+          const action = window.confirm(
+            "Fleet is linked" +
+              (state.vinTail ? " (…" + state.vinTail + ")" : "") +
+              ".\n\nOK = refresh vehicle GPS\nCancel = disconnect Fleet"
+          );
+          if (action) {
+            toast("⚡ Refreshing Fleet GPS…");
+            refreshFleetStatus().then((d) => {
+              if (d?.vehicle_location?.latitude != null) {
+                toast(
+                  "⚡ Vehicle GPS " +
+                    d.vehicle_location.latitude.toFixed(4) +
+                    ", " +
+                    d.vehicle_location.longitude.toFixed(4)
+                );
+              } else if (d?.vehicle_location?.error) {
+                toast("⚡ Fleet: " + d.vehicle_location.error);
+              } else {
+                toast("⚡ Fleet session active");
+              }
+            });
+            return;
+          }
+          toast("⚡ Disconnecting Fleet…");
+          window.location.href = apiUrl(
+            (state.disconnectEndpoint || "/api/fleet/auth/logout") + "?redirect=1"
+          );
+          return;
+        }
+        if (!state.authConfigured) {
+          toast("⚡ Fleet OAuth not configured — device claims still work");
+          refreshFleetStatus().then((d) => {
+            if (d && !d.auth_configured) {
+              $("voiceBar").innerHTML =
+                "Fleet: set <strong>TESLA_CLIENT_ID</strong> + <strong>TESLA_REDIRECT_URI</strong> on tesla-trek-v4";
+            }
+          });
+          return;
+        }
+        const returnPath = encodeURIComponent(
+          "https://www.tesla-trek.com/car"
+        );
+        toast("⚡ Opening Tesla Fleet connect for vehicle-verified claims…");
+        window.location.href =
+          apiUrl(state.connectEndpoint || "/api/fleet/auth/start") +
+          "?return=" +
+          returnPath;
+      }
+
+      function openGrok() {
+        toast("✦ Ask Grok: Trek mode — next stop and claim coach");
+        $("voiceBar").innerHTML =
+          'Grok co-pilot: open <strong>Grok</strong> · say <strong>“start waterfall warriors”</strong>';
+      }
+
+      function startVoice() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const bar = $("voiceBar");
+        if (!SR) {
+          bar.textContent = "Voice API unavailable — use dock buttons";
+          toast("Voice not supported here");
+          return;
+        }
+        const rec = new SR();
+        rec.lang = "en-US";
+        rec.interimResults = false;
+        rec.continuous = false;
+        bar.classList.add("listening");
+        bar.innerHTML = "Listening…";
+        rec.onresult = (e) => {
+          const text = (e.results[0][0].transcript || "").toLowerCase();
+          bar.innerHTML = "Heard: <strong>" + text + "</strong>";
+          handleVoice(text);
+        };
+        rec.onerror = () => {
+          bar.classList.remove("listening");
+          bar.innerHTML = "Voice error — try again";
+        };
+        rec.onend = () => bar.classList.remove("listening");
+        rec.start();
+      }
+
+      function handleVoice(cmd) {
+        if (cmd.includes("adventure")) return setStage("adventures");
+        if (cmd.includes("reward")) return setStage("rewards");
+        if (cmd.includes("ar") || cmd.includes("map")) return setStage("ar");
+        if (cmd.includes("claim") || cmd.includes("treasure") || cmd.includes("cache")) return claim();
+        if (cmd.includes("navigat") || cmd.includes("drive") || cmd.includes("route")) return navigateToPin();
+        if (cmd.includes("next") || cmd.includes("stop")) return nextStop();
+        if (cmd.includes("fleet") || cmd.includes("connect")) return toggleFleet();
+        if (cmd.includes("grok") || cmd.includes("advisor")) return openGrok();
+        if (cmd.includes("waterfall")) {
+          startMission("waterfall");
+          return setStage("ar");
+        }
+        if (cmd.includes("bavarian") || cmd.includes("helen")) {
+          startMission("bavarian");
+          return setStage("ar");
+        }
+        if (cmd.includes("daytona") || cmd.includes("cybertruck")) {
+          startMission("daytona-ct");
+          return setStage("ar");
+        }
+        if (cmd.includes("giga") || cmd.includes("performance")) {
+          startMission("giga");
+          return setStage("ar");
+        }
+        if (cmd.includes("long") || cmd.includes("blue ridge")) {
+          startMission("blue-ridge");
+          return setStage("ar");
+        }
+        if (cmd.includes("start") || cmd.includes("trek")) {
+          startMission("waterfall");
+          return setStage("ar");
+        }
+        toast("Say: start trek · claim · next · navigate · adventures · fleet");
+      }
+
+      /* Events */
+      document.querySelectorAll(".section-nav button").forEach((b) => {
+        // Passive-friendly: only toggle visibility of pre-rendered panels
+        b.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          const stage = b.getAttribute("data-stage");
+          if (stage) setStage(stage);
+        });
+      });
+      document.querySelectorAll("#tierTabs button").forEach((b) => {
+        b.addEventListener("click", () => {
+          state.tierFilter = b.getAttribute("data-tier");
+          document.querySelectorAll("#tierTabs button").forEach((x) => x.classList.remove("active"));
+          b.classList.add("active");
+          renderAdventures();
+        });
+      });
+      $("btnVoice").addEventListener("click", startVoice);
+      $("btnClaim").addEventListener("click", claim);
+      $("btnNext").addEventListener("click", nextStop);
+      $("btnSideClaim").addEventListener("click", claim);
+      $("btnSideNext").addEventListener("click", nextStop);
+      const btnNav = $("btnSideNav");
+      if (btnNav) btnNav.addEventListener("click", () => navigateToPin());
+      $("btnFleet").addEventListener("click", toggleFleet);
+      $("btnGrok").addEventListener("click", openGrok);
+      $("rewardOk").addEventListener("click", () => $("rewardOverlay").classList.remove("open"));
+      const btnExp = $("btnExportLedger");
+      const btnRst = $("btnResetProgress");
+      if (btnExp) btnExp.addEventListener("click", exportLedger);
+      const btnXyo = $("btnExportXyo");
+      if (btnXyo) btnXyo.addEventListener("click", exportXyoPack);
+      if (btnRst) btnRst.addEventListener("click", resetProgress);
+
+      /* Gentle compass sim */
+      setInterval(() => {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        state.heading = (state.heading + 1) % 360;
+        const dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+        $("compassN").textContent = dirs[Math.floor(state.heading / 45) % 8];
+      }, 1200);
+
+      // Query flags from OAuth return
+      try {
+        const q = new URLSearchParams(window.location.search);
+        if (q.get("fleet") === "linked" || q.get("tesla") === "connected") {
+          toast("⚡ Fleet OAuth returned — verifying session…");
+        }
+        if (q.get("fleet") === "disconnected") {
+          toast("⚡ Fleet disconnected · device claims still work");
+        }
+        if (q.get("fleet") === "error") {
+          toast("⚡ Fleet error: " + (q.get("msg") || "auth failed"));
+        }
+        const pinQ = q.get("pin");
+        if (pinQ) state.selectedPin = pinQ;
+        const advQ = q.get("adventure");
+        if (advQ && ADVENTURES.some((a) => a.id === advQ)) state.missionId = advQ;
+      } catch (_) {}
+
+      loadProgress();
+      updateHud();
+      startGpsWatch();
+      Promise.all([loadPinsCatalog(), refreshFleetStatus(), syncServerClaims()]).then(
+        ([, d]) => {
+          // Demote locked Starter adventure if access not present
+          const cur = ADVENTURES.find((a) => a.id === state.missionId);
+          if (cur && cur.requiresStarter && !state.starterAccess) {
+            state.missionId = "free";
+            state.selectedPin = null;
+            saveProgress();
+            updateHud();
+          }
+          if (d?.fleet_linked) {
+            toast(
+              "⚡ Fleet linked" +
+                (d.vin_tail ? " ·…" + d.vin_tail : "") +
+                " · vehicle GPS + server ledger · " +
+                state.claimRadiusM +
+                "m"
+            );
+            $("voiceBar").textContent =
+              "Fleet ON · CLAIM needs device + vehicle ≤" +
+              state.claimRadiusM +
+              "m · ledger is server-side";
+          } else {
+            const accessNote =
+              state.starterAccess
+                ? " · Starter " + (state.entitlementStatus || "on")
+                : " · Free tier";
+            toast(
+              "◆ TREK ONLINE · server ledger · pins " +
+                state.pinSource +
+                accessNote +
+                " · FLEET for vehicle-verified claims"
+            );
+          }
+          updateHud();
+        }
+      );
+
+      // Periodic Fleet GPS refresh when linked
+      setInterval(() => {
+        if (state.fleet && !state.claiming) refreshFleetStatus();
+      }, 45000);
+    })();
+  </script>
+</body>
+</html>

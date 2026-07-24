@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Pay 25 DOGE — Tesla Trek Starter</title>
+<meta name="description" content="Pay 25 DOGE for Tesla Trek Starter. Server verifies tx on-chain (address + amount). No fake revenue. Trek Stars are free in-game points — not DOGE."/>
+<meta name="theme-color" content="#0b0f14"/>
+<link rel="canonical" href="https://www.tesla-trek.com/pay/trek-starter"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://www.tesla-trek.com/pay/trek-starter"/>
+<meta property="og:title" content="Pay 25 DOGE — Tesla Trek Starter"/>
+<meta property="og:description" content="Pay 25 real DOGE for Starter access. Server verifies destination + amount on-chain. Trek Stars are separate free in-game points."/>
+<meta property="og:image" content="https://www.tesla-trek.com/icons/og-image.png"/>
+<link rel="icon" href="/favicon.ico" sizes="any"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+<link rel="manifest" href="/manifest.json"/>
+<style>
+  :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, sans-serif; }
+  body { margin:0; min-height:100vh; background:#0b0f14; color:#e8eef5; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .card { max-width:480px; width:100%; background:#121a22; border:1px solid #243241; border-radius:16px; padding:28px; box-shadow:0 20px 50px rgba(0,0,0,.4); }
+  h1 { margin:0 0 8px; font-size:1.5rem; }
+  h2 { margin:1.4rem 0 .55rem; font-size:1rem; color:#8aa0b5; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+  .muted { color:#8aa0b5; font-size:.95rem; line-height:1.45; }
+  .price { font-size:2rem; font-weight:700; margin:18px 0 6px; color:#c2f970; }
+  .addr { word-break:break-all; font-family:ui-monospace,monospace; background:#0b0f14; padding:12px; border-radius:8px; font-size:.85rem; border:1px solid #243241; }
+  a.btn, button.btn {
+    display:block; width:100%; text-align:center; margin-top:12px;
+    background:#c2f970; color:#0b0f14; text-decoration:none; font-weight:700;
+    padding:14px; border-radius:10px; border:none; cursor:pointer; font-size:1rem;
+    box-sizing:border-box;
+  }
+  a.btn.secondary, button.btn.secondary { background:#1c2a38; color:#e8eef5; border:1px solid #334155; font-weight:600; }
+  a.btn:hover, button.btn:hover { filter:brightness(1.05); }
+  a.btn:disabled, button.btn:disabled { opacity:.45; cursor:not-allowed; }
+  .steps { margin:14px 0 0; padding-left:18px; color:#b7c7d6; font-size:.9rem; }
+  .badge { display:inline-block; background:#1c2a38; color:#8fd3ff; padding:4px 10px; border-radius:999px; font-size:.75rem; margin-bottom:12px; }
+  code { background:#0b0f14; padding:2px 6px; border-radius:4px; font-size:.8rem; }
+  .row { display:flex; gap:8px; margin-top:10px; }
+  .row button { flex:1; background:#1c2a38; border:1px solid #334155; color:#e8eef5; border-radius:8px; padding:10px; cursor:pointer; font-size:.85rem; }
+  input[type=text] {
+    width:100%; box-sizing:border-box; margin-top:8px; padding:12px;
+    border-radius:8px; border:1px solid #334155; background:#0b0f14; color:#e8eef5;
+    font-family:ui-monospace,monospace; font-size:.85rem;
+  }
+  input.ok { border-color:#3dcb7a; }
+  input.bad { border-color:#e85d5d; }
+  .status { margin-top:10px; font-size:.88rem; line-height:1.4; color:#8aa0b5; min-height:1.3em; }
+  .status.ok { color:#3dcb7a; }
+  .status.bad { color:#e85d5d; }
+  .panel {
+    margin-top:16px; padding:14px; border-radius:12px;
+    background:#0e141c; border:1px solid #243241;
+  }
+  .panel pre {
+    margin:8px 0 0; white-space:pre-wrap; word-break:break-all;
+    font-size:.78rem; color:#b7c7d6; background:#0b0f14; padding:10px; border-radius:8px;
+  }
+  .links { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .links a { font-size:.85rem; color:#8fd3ff; }
+  ul.get { margin:8px 0 0; padding-left:18px; color:#b7c7d6; font-size:.9rem; }
+  .divider { height:1px; background:#243241; margin:20px 0; }
+  .pay-grid { display:flex; gap:16px; align-items:flex-start; margin-top:14px; flex-wrap:wrap; }
+  .pay-grid .qr-wrap {
+    flex:0 0 auto; padding:10px; background:#fff; border-radius:12px;
+    line-height:0; border:1px solid #243241;
+  }
+  .pay-grid .qr-wrap img { display:block; width:148px; height:148px; }
+  .pay-grid .pay-meta { flex:1 1 180px; min-width:0; }
+  .pending-banner {
+    display:none; margin:0 0 14px; padding:10px 12px; border-radius:10px;
+    background:#1a2a18; border:1px solid #3d5c34; color:#c2f970; font-size:.88rem;
+  }
+  .pending-banner.show { display:block; }
+  .pending-banner button {
+    margin-left:8px; background:transparent; border:1px solid #3d5c34;
+    color:#c2f970; border-radius:6px; padding:2px 8px; cursor:pointer; font-size:.8rem;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">LIVE · free → paid · ledger-ready</span>
+    <h1>Tesla Trek Starter</h1>
+    <div class="pending-banner" id="pendingBanner" role="status"></div>
+    <p class="muted">
+      First-win pack after free Try Trek / car HUD. Pay in DOGE to the empire receive wallet.
+      Revenue is only <strong>confirmed</strong> with on-chain proof — never invented.
+    </p>
+    <div class="price">25 DOGE</div>
+    <p class="muted" style="margin:0 0 10px;font-size:.88rem;padding:10px 12px;border-radius:10px;background:#1a2430;border:1px solid #334155">
+      <strong style="color:#c2f970">Real DOGE</strong> (this page) is cryptocurrency sent to the wallet below — verified server-side on a public explorer.
+      <strong style="color:#8fd3ff">Trek Stars</strong> are free in-game points on the car HUD and are <em>not</em> DOGE or product revenue.
+    </p>
+    <p class="muted" style="margin:0 0 12px;font-size:.88rem">
+      Don’t have DOGE yet?
+      <a href="https://www.coinbase.com/price/dogecoin" target="_blank" rel="noopener noreferrer" style="color:#8fd3ff">Coinbase</a>
+      ·
+      <a href="https://robinhood.com/us/en/crypto/DOGE/" target="_blank" rel="noopener noreferrer" style="color:#8fd3ff">Robinhood</a>
+      · then send 25 DOGE here. Not financial advice.
+    </p>
+    <div class="pay-grid">
+      <div class="qr-wrap" title="Scan with a Dogecoin wallet">
+        <img id="qrImg" width="148" height="148" alt="Dogecoin payment QR code for 25 DOGE"/>
+      </div>
+      <div class="pay-meta">
+        <p class="muted" style="margin:0 0 6px">Receive address</p>
+        <div class="addr" id="addr">D7nhs8FVsdVAKXcPz1vcufcQeNtSBdYgpS</div>
+        <div class="row">
+          <button type="button" id="copyAddr">Copy address</button>
+          <button type="button" id="copyUri">Copy dogecoin URI</button>
+        </div>
+        <div class="row">
+          <button type="button" id="copyShare">Copy share link</button>
+        </div>
+      </div>
+    </div>
+    <a class="btn" id="payBtn" href="dogecoin:D7nhs8FVsdVAKXcPz1vcufcQeNtSBdYgpS?amount=25&amp;message=trek-starter-25">Open wallet · Pay 25 DOGE</a>
+
+    <div class="divider"></div>
+
+    <h2>After you pay</h2>
+    <p class="muted">
+      Paste your Dogecoin <strong>txid</strong> (64 hex) or a Blockchair URL.
+      Our server looks up the tx on a public explorer and unlocks only when: <strong>destination matches this wallet</strong>, <strong>amount ≥ ~25 DOGE</strong>, and the payment is indexed. Client-pasted text alone never grants Starter or revenue confirmation.
+    </p>
+    <label class="muted" for="txid">Transaction id or explorer URL</label>
+    <input type="text" id="txid" placeholder="paste 64-char hex or blockchair.com/…/transaction/…" autocomplete="off" spellcheck="false"/>
+    <p class="status" id="txidStatus"></p>
+    <div class="row">
+      <button type="button" id="btnValidate">Validate + unlock</button>
+      <button type="button" id="btnExplorer" disabled>Open explorer</button>
+    </div>
+    <div class="row">
+      <button type="button" id="btnRefresh" disabled>Re-check explorer</button>
+    </div>
+
+    <div class="panel" id="unlockPanel" hidden style="border-color:#3d5c34;background:#1a2a18">
+      <p class="muted" style="margin:0;color:#c2f970" id="unlockHeadline">Starter unlocked</p>
+      <p class="muted" style="margin:8px 0 0" id="unlockDetail"></p>
+      <a class="btn" id="openCarBtn" href="/car?adventure=starter-summit" style="margin-top:12px">Open car HUD · Starter adventure →</a>
+      <a class="btn secondary" href="/try-trek#upgrade" style="margin-top:8px">Back to Try Trek guide</a>
+    </div>
+
+    <div class="panel" id="confirmPanel" hidden>
+      <p class="muted" style="margin:0">Revenue books (separate from HUD access). Product revenue is never booked from this page alone. Empire ledger prints <code>CUSTOMER_CONFIRMED</code> only via ops after on-chain proof — never from client paste.</p>
+      <p class="muted" style="margin:10px 0 0"><strong>1 · CLI</strong> (no voice needed)</p>
+      <pre id="cmdCli"></pre>
+      <button type="button" class="btn secondary" id="copyCli" style="margin-top:8px">Copy CLI command</button>
+      <p class="muted" style="margin:14px 0 0"><strong>2 · Grok / voice</strong></p>
+      <pre id="cmdGrok"></pre>
+      <button type="button" class="btn secondary" id="copyGrok" style="margin-top:8px">Copy Grok line</button>
+      <p class="muted" style="margin:14px 0 0;font-size:.8rem">
+        Revenue confirm is ops/CLI only (not a public admin page).
+        Example: <code>npm run confirm -- &lt;txid&gt; 25 trek-starter</code>.
+      </p>
+    </div>
+
+    <h2>What you get</h2>
+    <ul class="get">
+      <li>Funnel: <strong>Try Trek</strong> → free car HUD → pay 25 DOGE → explorer gate → Starter pins</li>
+      <li><strong>Provisional</strong> unlock only when explorer sees address + amount (mempool OK)</li>
+      <li><strong>Confirmed</strong> access when tx is in a block (still not auto revenue)</li>
+      <li>Paid pins · Starter Summit adventure · XYO export pack</li>
+      <li>Revenue books only on <code>CUSTOMER_CONFIRMED</code> in revenue-truth-ledger</li>
+      <li>Free Try Trek / car HUD remain available either way</li>
+    </ul>
+    <p class="status" id="accessStatus" style="margin-top:10px"></p>
+    <p class="status" id="agingStatus" style="margin-top:6px"></p>
+    <p class="muted" style="font-size:.85rem;margin-top:8px">No private keys collected. Not financial advice.</p>
+
+    <div class="links">
+      <a href="/try-trek">← Try Trek guide</a>
+      <a href="/car">Car HUD (free)</a>
+      <a href="/car?adventure=starter-summit">Starter adventure</a>
+      <a href="/">Home</a>
+    </div>
+
+    <ol class="steps">
+      <li>Park · free Try Trek first if you have not claimed yet.</li>
+      <li>Send <strong>25 DOGE</strong> to the address above.</li>
+      <li>Copy txid → paste → wait for explorer amount check.</li>
+      <li>Open car HUD · Starter adventure unlocks when access is provisional/confirmed.</li>
+      <li>Product revenue is only confirmed later on the ledger — not by this unlock alone.</li>
+    </ol>
+  </div>
+  <script>
+    (function () {
+      var ADDR = 'D7nhs8FVsdVAKXcPz1vcufcQeNtSBdYgpS';
+      var AMOUNT = 25;
+      var OFFER = 'trek-starter';
+      var uri = 'dogecoin:' + ADDR + '?amount=' + AMOUNT + '&message=trek-starter-25';
+      var sess = 'web-' + Date.now().toString(36);
+      try { sessionStorage.setItem('trek_pay_sess', sess); } catch (e) {}
+
+      // Offline-friendly QR via public generator (URI only — no keys)
+      var qr = document.getElementById('qrImg');
+      if (qr) {
+        qr.src =
+          'https://api.qrserver.com/v1/create-qr-code/?size=148x148&margin=8&data=' +
+          encodeURIComponent(uri);
+        qr.onerror = function () {
+          qr.alt = 'QR unavailable — use copy address or Open wallet';
+          qr.style.opacity = '0.35';
+        };
+      }
+
+      function copy(t) {
+        if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t);
+        var a = document.createElement('textarea');
+        a.value = t; document.body.appendChild(a); a.select();
+        document.execCommand('copy'); document.body.removeChild(a);
+        return Promise.resolve();
+      }
+
+      function shareUrl(txid) {
+        var base = location.origin + location.pathname.replace(/\.html$/, '');
+        if (txid) return base + '?txid=' + encodeURIComponent(txid);
+        return base;
+      }
+
+      function showPendingBanner(pend) {
+        var el = document.getElementById('pendingBanner');
+        if (!el) return;
+        if (!pend || !pend.txid) {
+          el.classList.remove('show');
+          el.textContent = '';
+          return;
+        }
+        el.classList.add('show');
+        el.innerHTML =
+          'Pending confirm · <code>' +
+          pend.txid.slice(0, 8) +
+          '…' +
+          pend.txid.slice(-6) +
+          '</code> · still provisional until <code>CUSTOMER_CONFIRMED</code> ' +
+          '<button type="button" id="clearPending">Clear</button>';
+        var btn = document.getElementById('clearPending');
+        if (btn) {
+          btn.onclick = function () {
+            try { localStorage.removeItem('trek_pending_txid'); } catch (e) {}
+            showPendingBanner(null);
+            input.value = '';
+            setStatus('');
+            input.classList.remove('ok', 'bad');
+            panel.hidden = true;
+            btnEx.disabled = true;
+            lastTx = null;
+          };
+        }
+      }
+
+      function extractTxid(raw) {
+        var s = String(raw || '').trim();
+        if (!s) return { ok: false, error: 'empty' };
+        var place = /^(YOUR_REAL_64_HEX_TXID|<64-hex>|<txid>|64-hex|txid|example|placeholder)$/i;
+        if (place.test(s.replace(/\s+/g, ''))) {
+          return { ok: false, error: 'placeholder' };
+        }
+        var m = s.match(/[a-fA-F0-9]{64}/);
+        if (!m) return { ok: false, error: 'invalid' };
+        var tx = m[0].toLowerCase();
+        if (/^(.)\1{63}$/.test(tx)) return { ok: false, error: 'suspicious' };
+        return { ok: true, txid: tx };
+      }
+
+      var input = document.getElementById('txid');
+      var status = document.getElementById('txidStatus');
+      var panel = document.getElementById('confirmPanel');
+      var btnEx = document.getElementById('btnExplorer');
+      var lastTx = null;
+
+      function setStatus(msg, cls) {
+        status.textContent = msg || '';
+        status.className = 'status' + (cls ? ' ' + cls : '');
+      }
+
+      function applyTx(parsed) {
+        lastTx = null;
+        btnEx.disabled = true;
+        panel.hidden = true;
+        input.classList.remove('ok', 'bad');
+        if (!parsed.ok) {
+          input.classList.add('bad');
+          var map = {
+            empty: 'Paste a txid or Blockchair URL.',
+            placeholder: 'That is a docs placeholder — use a real explorer txid.',
+            suspicious: 'All-identical hex is not a real payment txid.',
+            invalid: 'Need 64 hex characters (or a dogecoin explorer URL).'
+          };
+          setStatus(map[parsed.error] || 'Invalid txid', 'bad');
+          return;
+        }
+        lastTx = parsed.txid;
+        input.classList.add('ok');
+        setStatus('Valid format · ' + lastTx.slice(0, 8) + '…' + lastTx.slice(-6) + ' · server checking explorer…', '');
+        btnEx.disabled = false;
+        var btnRefresh = document.getElementById('btnRefresh');
+        if (btnRefresh) btnRefresh.disabled = false;
+        // Ops CLI panel only after server verifies payment — never from format alone
+        panel.hidden = true;
+        document.getElementById('unlockPanel').hidden = true;
+        try {
+          localStorage.setItem('trek_pending_txid', JSON.stringify({
+            txid: lastTx, amount: AMOUNT, offer: OFFER, ts: Date.now(), sess: sess
+          }));
+        } catch (e) {}
+        // Explorer gate (server-side): address + ≥25 DOGE required
+        registerEntitlement(lastTx, 'register');
+      }
+
+      function showAging(ent) {
+        var el = document.getElementById('agingStatus');
+        if (!el) return;
+        var a = ent && ent.provisional_aging;
+        if (a && a.aging) {
+          el.textContent = a.message || 'Provisional aging — re-check explorer.';
+          el.className = 'status bad';
+        } else if (a && a.age_hours != null) {
+          el.textContent = 'Provisional age: ' + a.age_hours + 'h (alert at ' + a.threshold_hours + 'h). Not revenue.';
+          el.className = 'status';
+        } else {
+          el.textContent = '';
+          el.className = 'status';
+        }
+      }
+
+      function showUnlockUi(ent, explorer, message) {
+        var unlockPanel = document.getElementById('unlockPanel');
+        var headline = document.getElementById('unlockHeadline');
+        var detail = document.getElementById('unlockDetail');
+        var statusEl = document.getElementById('accessStatus');
+        var st = (ent && ent.status) || 'free';
+        if (st === 'provisional' || st === 'confirmed') {
+          unlockPanel.hidden = false;
+          headline.textContent =
+            st === 'confirmed' ? 'Starter access CONFIRMED (explorer)' : 'Starter access PROVISIONAL';
+          var amt =
+            explorer && explorer.amount_to_address != null
+              ? explorer.amount_to_address + ' DOGE to …' + (explorer.expected_address_tail || '')
+              : (ent.amount_doge || AMOUNT) + ' DOGE';
+          detail.textContent =
+            (message || '') +
+            ' · ' +
+            amt +
+            ' · unlocks: ' +
+            ((ent.unlocks && ent.unlocks.join(', ')) || 'starter') +
+            ' · revenue still needs CUSTOMER_CONFIRMED';
+          if (statusEl) {
+            statusEl.textContent = 'Access: ' + st + ' · open car HUD';
+            statusEl.className = 'status ok';
+          }
+          showAging(ent);
+        } else {
+          unlockPanel.hidden = true;
+        }
+      }
+
+      function registerEntitlement(txid, action) {
+        var statusEl = document.getElementById('accessStatus');
+        var act = action || 'register';
+        setStatus(
+          (act === 'refresh' ? 'Re-checking explorer…' : 'Checking explorer for address + 25 DOGE…') +
+            ' · ' +
+            txid.slice(0, 8) +
+            '…',
+          ''
+        );
+        fetch('/api/fleet/entitlement', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: act,
+            offer: OFFER,
+            txid: txid,
+            amount_doge: AMOUNT,
+            try_explorer: true
+          })
+        })
+          .then(function (r) { return r.json().then(function (d) { return { http: r.status, data: d }; }); })
+          .then(function (res) {
+            var data = res.data || {};
+            var ent = data.entitlement || {};
+            var explorer = data.explorer || null;
+            if (!data.ok) {
+              setStatus(
+                (data.message || 'Payment not verified on explorer — no unlock yet.') +
+                  (explorer && explorer.error ? ' [' + explorer.error + ']' : ''),
+                'bad'
+              );
+              if (statusEl) {
+                statusEl.textContent =
+                  'Access: ' +
+                  (ent.status || 'free') +
+                  ' · free HUD still works · retry when indexed';
+                statusEl.className = 'status bad';
+              }
+              document.getElementById('unlockPanel').hidden = true;
+              showAging(ent);
+              return;
+            }
+            var st = ent.status || 'provisional';
+            var msg =
+              st === 'confirmed'
+                ? 'Explorer: in-block + amount OK. HUD unlocks active.'
+                : 'Explorer: address + amount OK. Provisional unlock active.';
+            setStatus(
+              'Txid · ' + lastTx.slice(0, 8) + '…' + lastTx.slice(-6) + ' · ' + msg,
+              'ok'
+            );
+            showUnlockUi(ent, explorer, data.message || msg);
+            // Ops revenue path (CLI) only after explorer evidence
+            panel.hidden = false;
+            var cli = 'npm run confirm -- ' + lastTx + ' ' + AMOUNT + ' ' + OFFER;
+            var grok = 'confirm doge tx ' + lastTx + ' ' + AMOUNT + ' ' + OFFER;
+            document.getElementById('cmdCli').textContent = cli;
+            document.getElementById('cmdGrok').textContent = grok;
+          })
+          .catch(function () {
+            setStatus(
+              'Server/explorer check unavailable — unlock NOT granted. Retry when /api/fleet/entitlement is reachable. Local paste alone never unlocks.',
+              'bad'
+            );
+            document.getElementById('unlockPanel').hidden = true;
+          });
+      }
+
+      document.getElementById('copyAddr').onclick = function () {
+        copy(ADDR).then(function () {
+          document.getElementById('copyAddr').textContent = 'Copied';
+        });
+      };
+      document.getElementById('copyUri').onclick = function () {
+        copy(uri).then(function () {
+          document.getElementById('copyUri').textContent = 'Copied';
+        });
+      };
+      document.getElementById('copyShare').onclick = function () {
+        copy(shareUrl(lastTx)).then(function () {
+          document.getElementById('copyShare').textContent = lastTx ? 'Share+txid copied' : 'Link copied';
+        });
+      };
+      document.getElementById('payBtn').addEventListener('click', function () {
+        try { localStorage.setItem('trek_pay_open_' + sess, String(Date.now())); } catch (e) {}
+      });
+      document.getElementById('btnValidate').onclick = function () {
+        applyTx(extractTxid(input.value));
+      };
+      var btnRefreshEl = document.getElementById('btnRefresh');
+      if (btnRefreshEl) {
+        btnRefreshEl.onclick = function () {
+          if (!lastTx) {
+            setStatus('Paste a txid first.', 'bad');
+            return;
+          }
+          registerEntitlement(lastTx, 'refresh');
+        };
+      }
+      input.addEventListener('input', function () {
+        var p = extractTxid(input.value);
+        if (p.ok) applyTx(p);
+        else if (!String(input.value || '').trim()) {
+          setStatus('');
+          input.classList.remove('ok', 'bad');
+          panel.hidden = true;
+          btnEx.disabled = true;
+        }
+      });
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') applyTx(extractTxid(input.value));
+      });
+      btnEx.onclick = function () {
+        if (!lastTx) return;
+        window.open('https://blockchair.com/dogecoin/transaction/' + lastTx, '_blank', 'noopener');
+      };
+      document.getElementById('copyCli').onclick = function () {
+        var t = document.getElementById('cmdCli').textContent;
+        copy(t).then(function () {
+          document.getElementById('copyCli').textContent = 'Copied CLI';
+        });
+      };
+      document.getElementById('copyGrok').onclick = function () {
+        var t = document.getElementById('cmdGrok').textContent;
+        copy(t).then(function () {
+          document.getElementById('copyGrok').textContent = 'Copied Grok line';
+        });
+      };
+
+      // Restore pending (7-day window) — not revenue confirmation
+      try {
+        var pend = JSON.parse(localStorage.getItem('trek_pending_txid') || 'null');
+        if (pend && pend.txid && Date.now() - (pend.ts || 0) < 7 * 864e5) {
+          showPendingBanner(pend);
+          input.value = pend.txid;
+          applyTx(extractTxid(pend.txid));
+        }
+      } catch (e) {}
+
+      // ?txid= / ?amount= from share links (amount is display-only here)
+      try {
+        var params = new URLSearchParams(location.search);
+        var q = params.get('txid');
+        if (q) {
+          input.value = q;
+          applyTx(extractTxid(q));
+        }
+      } catch (e) {}
+    })();
+  </script>
+</body>
+</html>

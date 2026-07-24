@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Try Trek" />
+  <meta name="theme-color" content="#0a0a0b" />
+  <meta name="description" content="Step-by-step guide to try Tesla Trek in a Model Y — car HUD, claims, optional Fleet." />
+  <title>Try Tesla Trek — Model Y Guide</title>
+  <style>
+    /* Safari-friendly: system fonts, no flex gaps reliance only, large type, safe areas */
+    *, *::before, *::after { box-sizing: border-box; }
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      padding-left: env(safe-area-inset-left, 0);
+      padding-right: env(safe-area-inset-right, 0);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 18px;
+      line-height: 1.55;
+      color: #f2f2f4;
+      background: #0a0a0b;
+      -webkit-font-smoothing: antialiased;
+    }
+    a {
+      color: #5b8cff;
+      -webkit-tap-highlight-color: rgba(91, 140, 255, 0.25);
+      word-break: break-word;
+    }
+    a:visited { color: #8aa8ff; }
+    .wrap {
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: 1.25rem 1.15rem 3rem;
+    }
+    header {
+      padding: 1.5rem 0 1.25rem;
+      border-bottom: 1px solid #2a2a30;
+      margin-bottom: 1.5rem;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #9bb6ff;
+      background: rgba(62, 106, 225, 0.18);
+      border: 1px solid rgba(62, 106, 225, 0.4);
+      border-radius: 999px;
+      padding: 0.35rem 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+    h1 {
+      font-size: 1.75rem;
+      line-height: 1.2;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .lede {
+      margin: 0;
+      color: #b0b0b8;
+      font-size: 1.05rem;
+    }
+    h2 {
+      font-size: 1.25rem;
+      margin: 2rem 0 0.75rem;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-size: 1.05rem;
+      margin: 1.25rem 0 0.5rem;
+      color: #e8e8ec;
+    }
+    p, li { color: #d4d4da; }
+    p { margin: 0.65rem 0; }
+    ul, ol {
+      margin: 0.5rem 0 1rem;
+      padding-left: 1.35rem;
+    }
+    li { margin: 0.4rem 0; }
+    .step {
+      background: #141418;
+      border: 1px solid #2a2a30;
+      border-radius: 14px;
+      padding: 1.1rem 1.15rem;
+      margin: 1rem 0;
+    }
+    .step h2 {
+      margin-top: 0;
+      font-size: 1.15rem;
+      color: #9bb6ff;
+    }
+    .step-num {
+      display: inline-block;
+      min-width: 1.6rem;
+      height: 1.6rem;
+      line-height: 1.6rem;
+      text-align: center;
+      border-radius: 8px;
+      background: rgba(62, 106, 225, 0.25);
+      color: #c5d4ff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-right: 0.4rem;
+    }
+    .url-box {
+      display: block;
+      margin: 0.75rem 0;
+      padding: 0.9rem 1rem;
+      background: #0d0d10;
+      border: 1px solid #3a3a44;
+      border-radius: 12px;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.95rem;
+      color: #9bb6ff;
+      text-decoration: none;
+      -webkit-user-select: all;
+      user-select: all;
+    }
+    .url-box:active { background: #1a1a22; }
+    .cta {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      background: #3e6ae1;
+      color: #fff !important;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 1rem 1.25rem;
+      border-radius: 14px;
+      margin: 1.25rem 0;
+      min-height: 48px;
+      line-height: 1.3;
+      border: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .cta:visited { color: #fff !important; }
+    .cta:active { opacity: 0.9; }
+    .warn {
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      margin: 1rem 0;
+      color: #fde68a;
+    }
+    .warn strong { color: #fef3c7; }
+    .note {
+      font-size: 0.95rem;
+      color: #9a9aa3;
+    }
+    .toc {
+      background: #141418;
+      border-radius: 14px;
+      padding: 1rem 1.15rem;
+      margin: 1rem 0 1.5rem;
+      border: 1px solid #2a2a30;
+    }
+    .toc a {
+      display: block;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid #24242a;
+      text-decoration: none;
+      color: #c5d4ff;
+      min-height: 44px;
+      line-height: 1.4;
+    }
+    .toc a:last-child { border-bottom: none; }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid #2a2a30;
+      font-size: 0.9rem;
+      color: #8a8a94;
+    }
+    code {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.9em;
+      background: #1c1c22;
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+    }
+    @media (min-width: 600px) {
+      body { font-size: 19px; }
+      h1 { font-size: 2rem; }
+      .wrap { padding: 2rem 1.5rem 4rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="badge">Tesla Trek · Model Y</div>
+      <h1>Try Tesla Trek — step by step</h1>
+      <p class="lede">Treasure-hunt layer for Tesla drivers. Open in Safari or the car browser while parked.</p>
+      <a class="cta" href="https://www.tesla-trek.com/car">Open car HUD</a>
+      <a class="cta" href="https://www.tesla-trek.com/pay/trek-starter" style="background:#166534;margin-top:0.65rem">Optional · Starter 25 DOGE</a>
+      <p class="note">Works in Safari on iPhone/iPad and in the Tesla center-screen browser. Free first — pay only if you want Starter.</p>
+    </header>
+
+    <nav class="toc" aria-label="Contents">
+      <a href="#what">What Trek is</a>
+      <a href="#safety">Safety</a>
+      <a href="#need">What you need</a>
+      <a href="#s1">1 · Open the car HUD</a>
+      <a href="#s2">2 · Allow location</a>
+      <a href="#s3">3 · Explore without Fleet</a>
+      <a href="#s4">4 · Claim a pin</a>
+      <a href="#s5">5 · Optional: Connect Fleet</a>
+      <a href="#s6">6 · Grok co-pilot</a>
+      <a href="#s7">7 · Rewards &amp; adventures</a>
+      <a href="#quick">Quick URLs</a>
+      <a href="#first-win">30-second first win</a>
+      <a href="#upgrade">Upgrade · Starter 25 DOGE</a>
+      <a href="#fix">Troubleshooting</a>
+    </nav>
+
+    <section id="what">
+      <h2>What Trek is</h2>
+      <p>Trek is a treasure-hunt layer for Tesla drivers: curated pins, AR-style map, adventures, and location claims. Tesla native navigation still handles routing. Trek is the hunt + co-pilot layer on top (Grok / chat + in-car browser HUD).</p>
+    </section>
+
+    <section id="safety">
+      <h2>Safety (read first)</h2>
+      <div class="warn">
+        <strong>Park first</strong> for FLEET connect, CLAIM, payments, and long forms. Do not use the browser HUD while driving.
+      </div>
+      <ul>
+        <li>Do not interact with the browser HUD while the vehicle is in motion.</li>
+        <li>Driving = voice-only / passenger UI only. Eyes on the road.</li>
+        <li>Use Tesla built-in navigation for actual turn-by-turn.</li>
+      </ul>
+    </section>
+
+    <section id="need">
+      <h2>What you need</h2>
+      <ul>
+        <li>A Model Y (or any Tesla with browser + Wi‑Fi/LTE)</li>
+        <li>Phone or car GPS (device claims work without Fleet)</li>
+        <li>Optional: Tesla account + Fleet link for “verified” vehicle GPS claims</li>
+        <li>About 5 minutes parked for first setup</li>
+      </ul>
+    </section>
+
+    <div class="step" id="s1">
+      <h2><span class="step-num">1</span> Open the car HUD</h2>
+      <ol>
+        <li>Park the car.</li>
+        <li>On the center screen, open the web browser.</li>
+        <li>Go to this address (tap to open on phone; type it in the car):</li>
+      </ol>
+      <a class="url-box" href="https://www.tesla-trek.com/car">https://www.tesla-trek.com/car</a>
+      <p class="note"><strong>www</strong> is preferred so Fleet login cookies stick. Bookmark it.</p>
+      <p>You should see the Trek main screen:</p>
+      <ul>
+        <li>Header: TREK · SIM/LIVE · Fleet · level</li>
+        <li>Sections: AR Map · Adventures · Rewards</li>
+        <li>Dock: VOICE · CLAIM · NEXT · FLEET · GROK</li>
+      </ul>
+      <p>Bookmark the page (browser star / favorites) for next drives.</p>
+    </div>
+
+    <div class="step" id="s2">
+      <h2><span class="step-num">2</span> Allow location (device GPS)</h2>
+      <ol>
+        <li>When the browser asks for location permission → <strong>Allow</strong>.</li>
+        <li>If claims fail later, check browser location permission, vehicle/phone location services, and a clear GPS lock outdoors.</li>
+      </ol>
+      <p class="note">Device GPS alone is enough for “device” claims. Vehicle GPS via Fleet is for stronger “verified” claims.</p>
+    </div>
+
+    <div class="step" id="s3">
+      <h2><span class="step-num">3</span> Explore without connecting Fleet</h2>
+      <ol>
+        <li>Tap <strong>AR Map</strong> — nearby hunt pins / map overlay.</li>
+        <li>Tap <strong>Adventures</strong> — Explorer · Premium · Long Haul · Performance.</li>
+        <li>Pick a mission vibe (or free roam).</li>
+        <li>Tap <strong>NEXT</strong> for the next pin / objective.</li>
+        <li>Use Tesla Nav yourself to drive toward the pin area when it’s safe.</li>
+      </ol>
+      <p>Trek does not replace Tesla navigation. Set the destination in Tesla Nav; use Trek as the hunt checklist and claim layer when you arrive.</p>
+    </div>
+
+    <div class="step" id="s4">
+      <h2><span class="step-num">4</span> Claim a pin (parked, within 150 m)</h2>
+      <ol>
+        <li>Drive to a pin area using Tesla Nav (safely).</li>
+        <li>Park within about <strong>150 meters</strong> (≈ 500 ft) of the pin.</li>
+        <li>Wait a few seconds for GPS accuracy to settle.</li>
+        <li>On the Trek HUD, tap <strong>CLAIM</strong>.</li>
+        <li>Allow geolocation if prompted again.</li>
+        <li>Read the result:
+          <ul>
+            <li><code>sim_verified</code> / device — device GPS close enough (no Fleet)</li>
+            <li><code>verified</code> — device + Fleet vehicle GPS both within 150 m</li>
+            <li><code>rejected</code> — too far, bad GPS, or vehicle GPS disagrees</li>
+            <li><code>pending</code> — wait / retry</li>
+          </ul>
+        </li>
+      </ol>
+      <h3>Tips for better claims</h3>
+      <ul>
+        <li>Park first. Don’t claim while rolling.</li>
+        <li>Wait for a stable GPS fix before CLAIM.</li>
+        <li>If rejected “far,” move closer and retry.</li>
+        <li>If Fleet is linked and the car is asleep, wake the car and retry.</li>
+      </ul>
+    </div>
+
+    <div class="step" id="s5">
+      <h2><span class="step-num">5</span> Optional: Connect Tesla Fleet</h2>
+      <p>Unlocks stronger claims that check your Model Y’s location via Fleet API.</p>
+      <ol>
+        <li>Park.</li>
+        <li>Tap <strong>FLEET</strong> on the HUD.</li>
+        <li>Sign in / consent on Tesla’s page.</li>
+        <li>Approve vehicle data / location scopes for the Trek app.</li>
+        <li>Return to the car HUD — pill should show <strong>Fleet</strong> (not “Fleet off”).</li>
+      </ol>
+      <p>If Fleet shows linked once then “off” after refresh:</p>
+      <ul>
+        <li>Use <a href="https://www.tesla-trek.com/car">www.tesla-trek.com/car</a> (not a random preview URL)</li>
+        <li>Hard-refresh the page</li>
+        <li>Tap FLEET again and complete consent</li>
+      </ul>
+      <p class="note">Tokens stay on the server (httpOnly cookies). Never share private keys or refresh tokens.</p>
+    </div>
+
+    <div class="step" id="s6">
+      <h2><span class="step-num">6</span> Use Grok as co-pilot (optional)</h2>
+      <p>In Grok (phone, car Grok, or Grok Build), try:</p>
+      <ul>
+        <li>“Start Trek — free roam”</li>
+        <li>“Next pin for Daytona / Helen / Giga”</li>
+        <li>“Coach me on a 150 m claim”</li>
+        <li>“What’s the difference between device and Fleet verified?”</li>
+      </ul>
+      <p class="note">Grok is the mission brain; the HUD is the big-touch screen.</p>
+    </div>
+
+    <div class="step" id="s7">
+      <h2><span class="step-num">7</span> Rewards &amp; adventures</h2>
+      <ol>
+        <li>Tap <strong>Rewards</strong> — claim ledger, badges, export JSON.</li>
+        <li>Adventures list curated location quests (Explorer → Performance).</li>
+        <li>Completing claims near pins advances the hunt (progress bar on AR).</li>
+        <li><strong>Navigate</strong> opens maps to the pin’s real lat/lon.</li>
+        <li><strong>DOGE★</strong> are game stars from GPS claims — not wallet DOGE. Real DOGE pay is optional Starter after on-chain confirm.</li>
+      </ol>
+      <p>Full site: <a href="https://www.tesla-trek.com">www.tesla-trek.com</a></p>
+    </div>
+
+    <section id="quick">
+      <h2>Quick reference URLs</h2>
+      <a class="url-box" href="https://www.tesla-trek.com/car">Car HUD · www.tesla-trek.com/car</a>
+      <a class="url-box" href="https://tesla-trek.com/car">Apex · tesla-trek.com → 308 www (use www)</a>
+      <a class="url-box" href="https://www.tesla-trek.com/try-trek">This guide · /try-trek</a>
+      <a class="url-box" href="https://www.tesla-trek.com/TRY-TREK-MODEL-Y.txt">Plain text · .txt</a>
+      <a class="url-box" href="https://www.tesla-trek.com/pay/trek-starter">Starter pay · 25 DOGE · /pay/trek-starter</a>
+      <p class="note">Status JSON: <code>auth_configured</code> = server ready · <code>fleet_linked</code> = this browser has a session · radius = 150 m</p>
+    </section>
+
+    <section id="first-win">
+      <h2>30-second “first win”</h2>
+      <ol>
+        <li>Park → open <a href="https://www.tesla-trek.com/car">www.tesla-trek.com/car</a></li>
+        <li>Allow location</li>
+        <li>Browse AR Map + Adventures</li>
+        <li>(Optional) FLEET → Tesla consent</li>
+        <li>Tesla Nav to a pin → park within 150 m → CLAIM</li>
+        <li>Check Rewards</li>
+      </ol>
+      <a class="cta" href="https://www.tesla-trek.com/car">Open car HUD now</a>
+    </section>
+
+    <section id="upgrade">
+      <h2>Upgrade · free → paid bridge</h2>
+      <p>
+        <strong>Recommended path:</strong> free first win on the car HUD → optional Starter when you want paid pins
+        (Brasstown · Tallulah · Smithgall) + Starter Summit adventure + XYO export pack.
+      </p>
+      <div class="warn">
+        <strong>Honest money path only.</strong>
+        Pay <strong>25 DOGE</strong> → paste txid → <em>public explorer must show output to the receive address ≥ ~25 DOGE</em>
+        before HUD unlocks. Bare hex alone is not enough.
+        Product revenue is <em>not</em> counted until the ledger prints <code>CUSTOMER_CONFIRMED</code>
+        (access ≠ revenue books).
+      </div>
+      <ol>
+        <li><strong>Aha (free)</strong> — Open <a href="https://www.tesla-trek.com/car">car HUD</a>, claim a free pin while parked.</li>
+        <li><strong>Gate</strong> — Want Starter Summit? Park, open pay page (never while driving).</li>
+        <li><strong>Pay</strong> — Send 25 DOGE via QR / dogecoin URI to the listed address.</li>
+        <li><strong>Unlock</strong> — Paste txid. Explorer checks address + amount → provisional access.</li>
+        <li><strong>Play paid</strong> — Open car with Starter adventure; free roam still free.</li>
+        <li><strong>Books</strong> — Revenue only after ledger <code>CUSTOMER_CONFIRMED</code> (ops/CLI offline — not a public admin page).</li>
+      </ol>
+      <div class="warn" id="pendingPayBanner" style="display:none;border-color:#3d5c34;background:#1a2a18">
+        <strong>Pending txid on this device.</strong>
+        <span id="pendingPayDetail"></span>
+        — resume pay to re-check explorer. Access unlock ≠ <code>CUSTOMER_CONFIRMED</code> revenue.
+        <a href="https://www.tesla-trek.com/pay/trek-starter" id="pendingPayLink">Resume pay page →</a>
+      </div>
+      <div class="warn" id="accessBanner" style="display:none;border-color:#3d5c34;background:#1a2a18">
+        <strong id="accessBannerTitle">Starter access on this browser.</strong>
+        <span id="accessBannerDetail"></span>
+        <a href="https://www.tesla-trek.com/car?adventure=starter-summit" id="accessCarLink">Open car · Starter Summit →</a>
+      </div>
+      <p style="display:flex;flex-wrap:wrap;gap:0.65rem;margin-top:1rem">
+        <a class="cta" href="https://www.tesla-trek.com/car" style="margin:0">1 · Free car HUD</a>
+        <a class="cta" href="https://www.tesla-trek.com/pay/trek-starter" style="background:#166534;margin:0">2 · Pay Starter 25 Ð</a>
+        <a class="cta" href="https://www.tesla-trek.com/car?adventure=starter-summit" style="background:#1e3a5f;margin:0">3 · Starter adventure</a>
+      </p>
+      <p class="note">
+        Pay: <a href="https://www.tesla-trek.com/pay/trek-starter">/pay/trek-starter</a> ·
+        Free HUD always available · DOGE★ game stars ≠ wallet DOGE.
+      </p>
+      <script>
+        (function () {
+          try {
+            var pend = JSON.parse(localStorage.getItem('trek_pending_txid') || 'null');
+            if (pend && pend.txid && Date.now() - (pend.ts || 0) < 7 * 864e5) {
+              var box = document.getElementById('pendingPayBanner');
+              var det = document.getElementById('pendingPayDetail');
+              var link = document.getElementById('pendingPayLink');
+              if (box && det) {
+                det.textContent =
+                  ' ' + pend.txid.slice(0, 8) + '…' + pend.txid.slice(-6) +
+                  (pend.amount ? ' · ' + pend.amount + ' DOGE' : '') +
+                  (pend.offer ? ' · ' + pend.offer : '');
+                if (link) link.href = 'https://www.tesla-trek.com/pay/trek-starter?txid=' + encodeURIComponent(pend.txid);
+                box.style.display = 'block';
+              }
+            }
+          } catch (e) {}
+          // Live entitlement from Fleet cookie (same-origin rewrite)
+          fetch('/api/fleet/entitlement', { credentials: 'include' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              var ent = (d && d.entitlement) || {};
+              if (!ent.access) return;
+              var ab = document.getElementById('accessBanner');
+              var title = document.getElementById('accessBannerTitle');
+              var detail = document.getElementById('accessBannerDetail');
+              if (!ab) return;
+              ab.style.display = 'block';
+              if (title) {
+                title.textContent =
+                  ent.status === 'confirmed'
+                    ? 'Starter access CONFIRMED on this browser.'
+                    : 'Starter access PROVISIONAL on this browser.';
+              }
+              if (detail) {
+                var aging = ent.provisional_aging;
+                detail.textContent =
+                  ' Unlocks paid pins + Starter adventure + XYO export.' +
+                  (aging && aging.aging ? ' ' + aging.message : '') +
+                  ' Not product revenue. ';
+              }
+            })
+            .catch(function () {});
+        })();
+      </script>
+    </section>
+
+    <section id="fix">
+      <h2>Troubleshooting</h2>
+      <ul>
+        <li><strong>Blank / old HUD</strong> — Hard refresh; confirm URL is www.tesla-trek.com/car</li>
+        <li><strong>CLAIM fails / no GPS</strong> — Allow location; park outside; wait for lock; retry</li>
+        <li><strong>Always rejected</strong> — Too far from pin, or Fleet GPS not near pin; move closer</li>
+        <li><strong>FLEET does nothing</strong> — Server should show auth_configured true</li>
+        <li><strong>Linked once then off</strong> — Stay on www; reconnect FLEET</li>
+        <li><strong>Vehicle location unavailable</strong> — Car may be asleep; wake / unlock / retry</li>
+        <li><strong>Browser slow</strong> — Wi‑Fi or strong LTE; close other tabs</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>What Trek is not</h2>
+      <ul>
+        <li>Not official Tesla software / not a Tesla partnership claim</li>
+        <li>Not a replacement for Autopilot, FSD, or Tesla Nav</li>
+        <li>Not a reason to look at the screen while driving</li>
+        <li>Not financial advice; paid tiers are optional on the site</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p><strong>LVL LTD CO</strong> · Tesla Trek · <a href="mailto:joe@tesla-trek.com">joe@tesla-trek.com</a></p>
+      <p>Treasure hunt OS for Tesla drivers — Grok co-pilot — claims ≤150 m — optional Fleet vehicle GPS.</p>
+      <p><a href="https://www.tesla-trek.com/TRY-TREK-MODEL-Y.txt">Download plain text (.txt)</a></p>
+    </footer>
+  </div>
+</body>
+</html>

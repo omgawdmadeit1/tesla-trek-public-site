@@ -1,0 +1,16 @@
+# Tesla Trek — public static site
+User-agent: *
+Allow: /
+Allow: /car
+Allow: /try-trek
+Allow: /pay/trek-starter
+Allow: /founder
+Disallow: /ops
+Disallow: /ops/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /internal
+Disallow: /internal/
+Disallow: /api/
+
+Sitemap: https://www.tesla-trek.com/sitemap.xml

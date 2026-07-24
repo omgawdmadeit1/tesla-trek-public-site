@@ -3,37 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tesla Trek | Premium Tesla Expeditions &amp; Lifestyle | A Division of LVL LTD CO</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <title>Tesla Trek | Family Road Trip Adventures &amp; Free Car HUD</title>
+    <meta name="description" content="Free car HUD, AR-pin location hunts, and family road-trip adventures. Optional DOGE Starter rewards — real on-chain pay, honest unlocks.">
+    <meta name="theme-color" content="#000000">
+    <link rel="canonical" href="https://www.tesla-trek.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.tesla-trek.com/">
+    <meta property="og:title" content="Tesla Trek — Family Road Trip Adventures">
+    <meta property="og:description" content="Free car HUD, AR-pin location hunts, and family road-trip adventures. Optional DOGE Starter rewards.">
+    <meta property="og:image" content="https://www.tesla-trek.com/icons/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tesla Trek — Family Road Trip Adventures">
+    <meta name="twitter:description" content="Free car HUD, AR-pin location hunts, and family road-trip adventures.">
+    <meta name="twitter:image" content="https://www.tesla-trek.com/icons/og-image.png">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/css/site.css">
+    <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+    <script src="/vendor/leaflet/leaflet.js" defer></script>
     <style>
+        /* fallback if site.css missing during local open */
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        .gold { color: #facc15; }
-        .section-card { background: #0f172a; border: 1px solid #334155; border-radius: 1.5rem; }
-        .nav-active { background: #facc15; color: #0a0f1a; font-weight: 600; border-radius: 9999px; padding-left: 1rem; padding-right: 1rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
-        .nav-link { color: #facc15; }
-        .nav-link:hover { color: #fde047; }
-        .range-ring {
-            width: 96px; height: 96px; border-radius: 9999px;
-            background: conic-gradient(#10b981 0% 78%, #334155 78% 100%);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .range-inner {
-            width: 72px; height: 72px; background: #0a0f1a; border-radius: 9999px;
-            display: flex; align-items: center; justify-content: center; flex-direction: column;
-        }
-        .live-dot { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-        .topo { background-image: linear-gradient(rgba(234,179,8,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(234,179,8,0.08) 1px, transparent 1px); background-size: 40px 40px; }
-        .quest-card { transition: transform .2s; }
-        .quest-card:hover { transform: translateY(-2px); }
-        .compass { position: absolute; right: 12px; bottom: 12px; width: 48px; height: 48px; border: 1px solid #facc15; border-radius: 9999px; opacity: .7; }
-        .compass::before { content: 'N'; position: absolute; top: 2px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #facc15; }
-        .compass::after { content: 'S'; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #facc15; }
-        .compass .e { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); font-size: 10px; color: #facc15; }
-        .compass .w { position: absolute; left: 2px; top: 50%; transform: translateY(-50%); font-size: 10px; color: #facc15; }
-        .glass { background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body class="bg-[#0a0f1a] text-white">
@@ -49,30 +42,30 @@
 
     <!-- Header --><div id="start"></div>
     <div class="border-b border-white/10 bg-black/70 backdrop-blur">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center shadow-inner">
-                    <span class="text-white text-2xl">◆</span>
+        <div class="max-w-7xl mx-auto px-6 py-4 site-header">
+            <div class="brand-block">
+                <div class="w-9 h-9 shrink-0 bg-emerald-500 rounded-xl flex items-center justify-center shadow-inner">
+                    <span class="text-white text-2xl" aria-hidden="true">◆</span>
                 </div>
-                <div>
-                    <div class="font-bold text-2xl tracking-tight">TESLA TREK</div>
-                    <div class="text-[10px] text-[#E31937] tracking-[2px] -mt-1 font-mono">FAMILY-FIRST TRAVEL GAME · tesla-trek.com</div>
+                <div class="min-w-0">
+                    <div class="brand-title">TESLA TREK</div>
+                    <div class="brand-tag">FAMILY-FIRST TRAVEL GAME · tesla-trek.com</div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 text-sm">
+            <div class="site-header-nav text-sm">
                 <a href="/car" class="px-4 py-1.5 rounded-full bg-[#3E6AE1] hover:bg-[#355dc9] text-white font-semibold flex items-center gap-1" title="Main-screen AR · adventures · rewards">Car HUD</a>
-                <button onclick="showFleet()" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Vehicles</button>
-                <button onclick="showQuestsModal()" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Quests</button>
-                <button onclick="if (window.liveMap) window.liveMap.flyTo([37.75, -119.5], 9)" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Map</button>
-                <button onclick="connectTeslaAccount()" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Community</button>
+                <button type="button" data-action="show-fleet" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Vehicles</button>
+                <button type="button" data-action="show-quests" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Quests</button>
+                <button type="button" data-action="fly-map" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Map</button>
+                <button type="button" data-action="connect-tesla" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Community</button>
                 <a href="/pay/trek-starter" class="px-3 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1" title="Pay 25 DOGE · Starter pack">Pay 25 Ð</a>
-                <button onclick="showGrokAdvisor()" class="px-3 py-1.5 rounded-full bg-purple-600/80 hover:bg-purple-600 text-xs flex items-center gap-1">Grok</button>
-                <button onclick="spawnTreasure(true)" class="px-3 py-1.5 rounded-full hover:bg-white/5 text-xs flex items-center gap-1" title="Drop treasure marker">💎</button>
-                <button onclick="boostAllVehicles()" class="px-2 text-xs text-emerald-400 hover:text-emerald-300" title="Fleet boost">⚡⚡</button>
+                <button type="button" data-action="show-grok" class="px-3 py-1.5 rounded-full bg-purple-600/80 hover:bg-purple-600 text-xs flex items-center gap-1">Grok</button>
+                <button type="button" data-action="spawn-treasure" class="px-3 py-1.5 rounded-full hover:bg-white/5 text-xs flex items-center gap-1" title="Drop treasure marker">💎</button>
+                <button type="button" data-action="boost-fleet" class="px-2 text-xs text-emerald-400 hover:text-emerald-300" title="Fleet boost">⚡⚡</button>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
                 <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-black text-xs font-bold">A</div>
                 <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
             </div>
@@ -84,7 +77,7 @@
         <div class="flex items-end justify-between mb-6">
             <div>
                 <div class="flex items-center gap-3">
-                    <span class="text-4xl font-semibold tracking-tight">Family road trip mode</span>
+                    <h1 class="text-4xl font-semibold tracking-tight">Tesla Trek — Family Road Trip Adventures</h1>
                     <span class="text-3xl">👨‍👩‍👧‍👦</span>
                 </div>
                 <div class="text-white/60">Let's unearth the extraordinary</div>
@@ -124,32 +117,32 @@
 
                         <div class="mt-4 flex flex-wrap items-center gap-2">
                             <a href="/pay/trek-starter" class="bg-emerald-500 hover:bg-emerald-400 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2">Pay 25 DOGE · Starter</a>
-                            <button onclick="startTrek()" class="bg-yellow-400 hover:bg-yellow-300 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2">
+                            <button type="button" data-action="start-trek" class="bg-yellow-400 hover:bg-yellow-300 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2">
                                 ▶ Start Trek
                             </button>
-                            <button onclick="chargeVehicle()" class="bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-4 py-2 rounded-2xl flex items-center gap-2">
+                            <button type="button" data-action="charge-vehicle" class="bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-4 py-2 rounded-2xl flex items-center gap-2">
                                 ⚡ Charge
                             </button>
-                            <button onclick="navigateToQuest()" class="bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-4 py-2 rounded-2xl flex items-center gap-2">
+                            <button type="button" data-action="navigate-quest" class="bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-4 py-2 rounded-2xl flex items-center gap-2">
                                 🧭 Navigate
                             </button>
-                            <button onclick="claimAtLocation(true)" class="bg-emerald-600 hover:bg-emerald-500 text-sm px-4 py-2 rounded-2xl flex items-center gap-2" title="Real GPS claim (&lt;150m)">
+                            <button type="button" data-action="claim-gps" class="bg-emerald-600 hover:bg-emerald-500 text-sm px-4 py-2 rounded-2xl flex items-center gap-2" title="Real GPS claim (&lt;150m)">
                                 📍 Claim at Location (GPS)
                             </button>
-                            <button onclick="completeHunt()" class="bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-3 py-2 rounded-2xl">Complete Hunt</button>
-                            <button onclick="cancelHunt()" class="text-xs text-white/50 px-2">Cancel</button>
-                            <button onclick="useDemoPass()" class="ml-1 text-xs px-3 py-1 rounded-full border border-white/20 hover:bg-white/5">📲 Use Demo Pass</button>
-                            <button onclick="claimAtLocation(true)" class="ml-1 text-xs px-3 py-1 rounded-full bg-emerald-700/70 hover:bg-emerald-700">GPS Claim</button>
+                            <button type="button" data-action="complete-hunt" class="bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-3 py-2 rounded-2xl">Complete Hunt</button>
+                            <button type="button" data-action="cancel-hunt" class="text-xs text-white/50 px-2">Cancel</button>
+                            <button type="button" data-action="demo-pass" class="ml-1 text-xs px-3 py-1 rounded-full border border-white/20 hover:bg-white/5">📲 Use Demo Pass</button>
+                            <button type="button" data-action="claim-gps" class="ml-1 text-xs px-3 py-1 rounded-full bg-emerald-700/70 hover:bg-emerald-700">GPS Claim</button>
                         </div>
 
-                        <div class="mt-3 text-[11px] text-white/50">78% • 420 km Estimated range • <span onclick="window.copyTrekDogePay && window.copyTrekDogePay()" class="cursor-pointer underline decoration-dotted">DogePay rewards</span></div>
+                        <div class="mt-3 text-[11px] text-white/50"><span id="range-stats-line">78% • 420 km Estimated range</span> • <button type="button" data-action="copy-dogepay" class="cursor-pointer underline decoration-dotted bg-transparent border-0 p-0 text-inherit text-[11px]">DogePay rewards</button></div>
 
                         <!-- Sentry for Plaid vehicles - "sentry to me" -->
                         <div id="sentry-panel" class="mt-4 p-3 bg-red-900/30 border border-red-500/50 rounded-2xl text-sm flex items-center justify-between" style="display:none;">
                             <div>
                                 <span class="font-semibold text-red-400">Sentry Mode</span>: <span id="sentry-status">Armed</span>
                             </div>
-                            <button onclick="sentryToMe()" class="bg-red-600 hover:bg-red-700 text-xs px-3 py-1 rounded-xl">Sentry to Me</button>
+                            <button type="button" data-action="sentry-to-me" class="bg-red-600 hover:bg-red-700 text-xs px-3 py-1 rounded-xl">Sentry to Me</button>
                         </div>
                     </div>
 
@@ -212,12 +205,12 @@
         <div class="mt-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="font-medium">Recommended Quests</div>
-                <button onclick="showQuestsModal()" class="text-xs text-yellow-400 hover:text-yellow-300">View all →</button>
+                <button type="button" data-action="show-quests" class="text-xs text-yellow-400 hover:text-yellow-300">View all →</button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Sierra Summit -->
-                <div onclick="setActiveQuestFromRecommended(0)" class="quest-card section-card p-3 cursor-pointer">
+                <div data-action="quest-rec" data-quest-idx="0" class="quest-card section-card p-3 cursor-pointer">
                     <div class="h-20 bg-yellow-900 rounded-xl flex items-center justify-center text-4xl mb-2">🏔️</div>
                     <div class="font-semibold">Sierra Summit</div>
                     <div class="text-xs text-white/60">Eastern Sierra, CA</div>
@@ -229,7 +222,7 @@
                 </div>
 
                 <!-- Pacific Pulse -->
-                <div onclick="setActiveQuestFromRecommended(1)" class="quest-card section-card p-3 cursor-pointer">
+                <div data-action="quest-rec" data-quest-idx="1" class="quest-card section-card p-3 cursor-pointer">
                     <div class="h-20 bg-blue-900 rounded-xl flex items-center justify-center text-4xl mb-2">🌊</div>
                     <div class="font-semibold">Pacific Pulse</div>
                     <div class="text-xs text-white/60">Big Sur, CA</div>
@@ -241,7 +234,7 @@
                 </div>
 
                 <!-- Desert Voyager -->
-                <div onclick="setActiveQuestFromRecommended(2)" class="quest-card section-card p-3 cursor-pointer">
+                <div data-action="quest-rec" data-quest-idx="2" class="quest-card section-card p-3 cursor-pointer">
                     <div class="h-20 bg-orange-900 rounded-xl flex items-center justify-center text-4xl mb-2">🏜️</div>
                     <div class="font-semibold">Desert Voyager</div>
                     <div class="text-xs text-white/60">Joshua Tree, CA</div>
@@ -256,33 +249,33 @@
     </div>
 
     <!-- Fleet Modal (with Plaid VINs) -->
-    <div id="fleet-modal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4" onclick="if (event.target.id === 'fleet-modal') this.classList.add('hidden')">
-        <div class="bg-[#0f172a] rounded-3xl border border-white/10 w-full max-w-2xl p-6" onclick="event.stopImmediatePropagation()">
+    <div id="fleet-modal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4" data-action="close-if-self" data-close-id="fleet-modal">
+        <div class="bg-[#0f172a] rounded-3xl border border-white/10 w-full max-w-2xl p-6" data-action="stop-prop">
             <div class="flex justify-between items-center mb-4">
                 <div class="font-semibold text-xl">My Fleet <span class="text-xs text-emerald-400">(Vehicle passes (demo))</span></div>
-                <button onclick="document.getElementById('fleet-modal').classList.add('hidden')" class="text-white/60">✕</button>
+                <button type="button" data-action="hide" data-target="fleet-modal" class="text-white/60">✕</button>
             </div>
 
             <div id="fleet-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
 
             <div class="mt-6 pt-4 border-t border-white/10 flex gap-3">
-                <button onclick="connectTeslaAccount(); document.getElementById('fleet-modal').classList.add('hidden')" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/20 py-2 rounded-2xl text-sm">Connect Real Tesla Fleet (OAuth)</button>
-                <button onclick="document.getElementById('fleet-modal').classList.add('hidden')" class="flex-1 bg-yellow-400 text-black font-semibold py-2 rounded-2xl text-sm">Close</button>
+                <button type="button" data-action="connect-tesla-close-fleet" class="flex-1 bg-white/5 hover:bg-white/10 border border-white/20 py-2 rounded-2xl text-sm">Connect Real Tesla Fleet (OAuth)</button>
+                <button type="button" data-action="hide" data-target="fleet-modal" class="flex-1 bg-yellow-400 text-black font-semibold py-2 rounded-2xl text-sm">Close</button>
             </div>
         </div>
     </div>
 
     <!-- Quests Modal (now fully functional with list + claim actions) -->
-    <div id="quests-modal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4" onclick="if (event.target.id === 'quests-modal') this.classList.add('hidden')">
-        <div class="bg-[#0f172a] rounded-3xl border border-white/10 w-full max-w-md p-6" onclick="event.stopImmediatePropagation()">
+    <div id="quests-modal" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4" data-action="close-if-self" data-close-id="quests-modal">
+        <div class="bg-[#0f172a] rounded-3xl border border-white/10 w-full max-w-md p-6" data-action="stop-prop">
             <div class="font-semibold mb-3 flex items-center justify-between">
                 <span>All Quests • Treasure Hunt</span>
                 <span class="text-[10px] px-2 py-0.5 bg-yellow-400/10 text-yellow-400 rounded">Real GPS &lt;150m</span>
             </div>
             <div id="quests-list" class="space-y-2 max-h-[320px] overflow-auto"></div>
             <div class="mt-4 flex gap-2">
-                <button onclick="spawnTreasure(true); document.getElementById('quests-modal').classList.add('hidden');" class="flex-1 bg-white/5 hover:bg-white/10 py-2 rounded-2xl text-sm">Spawn Treasure on Map</button>
-                <button onclick="document.getElementById('quests-modal').classList.add('hidden')" class="flex-1 bg-yellow-400 text-black font-semibold py-2 rounded-2xl text-sm">Close</button>
+                <button type="button" data-action="spawn-and-close-quests" class="flex-1 bg-white/5 hover:bg-white/10 py-2 rounded-2xl text-sm">Spawn Treasure on Map</button>
+                <button type="button" data-action="hide" data-target="quests-modal" class="flex-1 bg-yellow-400 text-black font-semibold py-2 rounded-2xl text-sm">Close</button>
             </div>
             <div class="text-[10px] text-white/50 mt-2 text-center">Tap a quest to activate • Use "Claim at Location (GPS)" when near a vault.</div>
         </div>
@@ -314,6 +307,15 @@
         ];
 
         function initLiveMap() {
+        // Leaflet same-origin marker assets
+        if (typeof L !== 'undefined' && L.Icon && L.Icon.Default) {
+            L.Icon.Default.mergeOptions({
+                iconUrl: '/vendor/leaflet/images/marker-icon.png',
+                iconRetinaUrl: '/vendor/leaflet/images/marker-icon-2x.png',
+                shadowUrl: '/vendor/leaflet/images/marker-shadow.png'
+            });
+        }
+
             const container = document.getElementById('live-map');
             if (!container) return;
 
@@ -351,13 +353,21 @@
             document.getElementById('vehicle-model').textContent = v.model;
             document.getElementById('vehicle-location').innerHTML = `📍 ${v.location}`;
 
-            const pct = v.battery || 78;
-            document.getElementById('range-pct').textContent = pct + '%';
+            // Single source of truth for battery % (ring + text line)
+            const pct = Number(v.battery);
+            const batteryPct = Number.isFinite(pct) ? Math.max(0, Math.min(100, Math.round(pct))) : 78;
+            v.battery = batteryPct;
+            const estKm = Math.round(batteryPct / 100 * 540); // ~540 km at 100%
+            const pctLabel = batteryPct + '%';
+            const rangePctEl = document.getElementById('range-pct');
+            if (rangePctEl) rangePctEl.textContent = pctLabel;
+            const rangeLine = document.getElementById('range-stats-line');
+            if (rangeLine) rangeLine.textContent = pctLabel + ' • ' + estKm + ' km Estimated range';
 
-            // Update the ring (simple visual)
+            // Update the ring from the same batteryPct
             const ring = document.querySelector('.range-ring');
             if (ring) {
-                ring.style.background = `conic-gradient(#10b981 0% ${pct}%, #334155 ${pct}% 100%)`;
+                ring.style.background = `conic-gradient(#10b981 0% ${batteryPct}%, #334155 ${batteryPct}% 100%)`;
             }
 
             // Fly map & update marker
@@ -693,8 +703,8 @@
 
         function showGrokAdvisor() {
             const html = `
-                <div id="grok-advisor-modal" class="fixed inset-0 z-[230] flex items-center justify-center bg-black/90 p-4" onclick="document.getElementById('grok-advisor-modal').remove()">
-                    <div class="glass w-full max-w-md rounded-3xl border border-purple-500/30 p-6" onclick="event.stopImmediatePropagation()">
+                <div id="grok-advisor-modal" class="fixed inset-0 z-[230] flex items-center justify-center bg-black/90 p-4" data-action="remove-id" data-target="grok-advisor-modal">
+                    <div class="glass w-full max-w-md rounded-3xl border border-purple-500/30 p-6" data-action="stop-prop">
                         <div class="font-semibold text-xl mb-1">Grok Advisor • Tesla Trek</div>
                         <div class="text-xs text-purple-400 mb-4">Travel Advisor • Real-time strategy</div>
                         <div class="text-sm text-white/80 leading-relaxed">
@@ -706,8 +716,8 @@
                             <div class="bg-white/5 p-3 rounded-2xl">Next vault: 1.8km • +420 XP</div>
                             <div class="bg-white/5 p-3 rounded-2xl">Fortune: "The road forks but the soul keeps revving."</div>
                         </div>
-                        <button onclick="document.getElementById('grok-advisor-modal').remove(); spawnTreasure(true);" class="mt-4 w-full py-2.5 bg-purple-600 hover:bg-purple-500 rounded-2xl font-semibold">Get Branch Advice + Spawn</button>
-                        <button onclick="document.getElementById('grok-advisor-modal').remove()" class="mt-2 w-full text-xs text-white/50">Close</button>
+                        <button type="button" data-action="grok-spawn" class="mt-4 w-full py-2.5 bg-purple-600 hover:bg-purple-500 rounded-2xl font-semibold">Get Branch Advice + Spawn</button>
+                        <button data-action="remove-id" data-target="grok-advisor-modal" class="mt-2 w-full text-xs text-white/50">Close</button>
                     </div>
                 </div>`;
             document.body.insertAdjacentHTML('beforeend', html);
@@ -766,7 +776,7 @@
                                 const statusLabel = v.state === 'online' ? 'ONLINE' : v.state === 'asleep' ? 'ASLEEP' : 'OFFLINE';
                                 const vinSnippet = v.vin ? `${v.vin.slice(0,4)}••••${v.vin.slice(-4)}` : '';
                                 return `
-                                    <div onclick="selectVehicleForTrek(${i}); document.getElementById('vehicle-picker-modal').remove()" 
+                                    <div data-action="select-vehicle-trek" data-vehicle-index="${i}" 
                                          class="group glass rounded-2xl px-5 py-4 border border-white/10 hover:border-yellow-400/60 transition cursor-pointer flex items-center gap-4">
                                         <div class="flex-1">
                                             <div class="font-semibold">${v.display_name}</div>
@@ -817,8 +827,8 @@
                     <div class="glass w-full max-w-md rounded-3xl p-8 text-center border border-red-500/30">
                         <div class="text-xl font-semibold mb-2">Connect Real Tesla Fleet</div>
                         <div class="text-xs text-zinc-400 mb-6">PKCE + Fleet API • Post-OAuth picker includes available Plaid VINs</div>
-                        <button onclick="simulateOAuthFlowMini()" class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-2xl font-semibold">OPEN TESLA AUTH</button>
-                        <button onclick="document.getElementById('oauth-modal-mini').remove()" class="mt-3 text-xs text-zinc-400">Cancel</button>
+                        <button type="button" data-action="oauth-mini" class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-2xl font-semibold">OPEN TESLA AUTH</button>
+                        <button type="button" data-action="remove-id" data-target="oauth-modal-mini" class="mt-3 text-xs text-zinc-400">Cancel</button>
                     </div>
                 </div>`;
             document.body.insertAdjacentHTML('beforeend', modalHTML);
@@ -861,13 +871,107 @@
             grok: () => showGrokAdvisor()
         };
 
-        // DogePay helper (compatible with Lumina dogepay + trek revenue tagging)
-        window.copyTrekDogePay = function(item = 'giga-texas-belt-buckle', amt = 85) {
-            const memo = encodeURIComponent(`Tesla Trek ${item} • Tips support Tesla Trek product development<br><span class="font-mono text-[10px] break-all">${uri}</span>`;
+        // DogePay helper — copy payment URI for tips (not Starter unlock; Starter is server-verified)
+        window.copyTrekDogePay = function(item = 'trek-tip', amt = 5) {
+            const addr = 'D7nhs8FVsdVAKXcPz1vcufcQeNtSBdYgpS';
+            const memo = encodeURIComponent('Tesla Trek ' + item);
+            const uri = 'dogecoin:' + addr + '?amount=' + amt + '&message=' + memo;
+            const toast = (msg) => {
+                const t = document.createElement('div');
+                t.className = 'fixed bottom-6 right-6 bg-black/90 border border-yellow-400/30 px-4 py-2 rounded-2xl text-sm z-[300] max-w-sm';
+                t.innerHTML = msg;
                 document.body.appendChild(t);
-                setTimeout(() => t.remove(), 5200);
+                setTimeout(() => t.remove(), 4200);
+            };
+            const doCopy = (text) => {
+                if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+                const a = document.createElement('textarea');
+                a.value = text; document.body.appendChild(a); a.select();
+                document.execCommand('copy'); document.body.removeChild(a);
+                return Promise.resolve();
+            };
+            doCopy(uri).then(() => {
+                toast('DogePay URI copied · tips support Trek · Starter unlock is separate at /pay/trek-starter');
             }).catch(() => alert('DogePay URI: ' + uri));
         };
+
+        // Event delegation — no inline onclick (CSP-friendly)
+        document.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-action]');
+            if (!el) return;
+            const action = el.getAttribute('data-action');
+            switch (action) {
+                case 'stop-prop':
+                    e.stopPropagation();
+                    if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+                    break;
+                case 'close-if-self':
+                    if (e.target === el) el.classList.add('hidden');
+                    break;
+                case 'hide': {
+                    const id = el.getAttribute('data-target');
+                    const n = id && document.getElementById(id);
+                    if (n) n.classList.add('hidden');
+                    break;
+                }
+                case 'show-fleet': showFleet(); break;
+                case 'show-quests': showQuestsModal(); break;
+                case 'fly-map':
+                    if (window.liveMap) window.liveMap.flyTo([37.75, -119.5], 9);
+                    break;
+                case 'connect-tesla': connectTeslaAccount(); break;
+                case 'connect-tesla-close-fleet':
+                    connectTeslaAccount();
+                    document.getElementById('fleet-modal')?.classList.add('hidden');
+                    break;
+                case 'show-grok': showGrokAdvisor(); break;
+                case 'spawn-treasure': spawnTreasure(true); break;
+                case 'spawn-and-close-quests':
+                    spawnTreasure(true);
+                    document.getElementById('quests-modal')?.classList.add('hidden');
+                    break;
+                case 'boost-fleet': boostAllVehicles(); break;
+                case 'start-trek': startTrek(); break;
+                case 'charge-vehicle': chargeVehicle(); break;
+                case 'navigate-quest': navigateToQuest(); break;
+                case 'claim-gps': claimAtLocation(true); break;
+                case 'complete-hunt': completeHunt(); break;
+                case 'cancel-hunt': cancelHunt(); break;
+                case 'demo-pass': useDemoPass(); break;
+                case 'sentry-to-me': sentryToMe(); break;
+                case 'copy-dogepay':
+                    if (window.copyTrekDogePay) window.copyTrekDogePay();
+                    break;
+                case 'quest-rec': {
+                    const idx = Number(el.getAttribute('data-quest-idx') || 0);
+                    setActiveQuestFromRecommended(idx);
+                    break;
+                }
+                case 'remove-self-modal':
+                    el.closest('[data-modal-root]')?.remove() || el.remove();
+                    break;
+                case 'remove-id': {
+                    const id = el.getAttribute('data-target');
+                    document.getElementById(id)?.remove();
+                    break;
+                }
+                case 'grok-spawn':
+                    document.getElementById('grok-advisor-modal')?.remove();
+                    spawnTreasure(true);
+                    break;
+                case 'select-vehicle-trek': {
+                    const i = Number(el.getAttribute('data-vehicle-index'));
+                    if (Number.isFinite(i)) selectVehicleForTrek(i);
+                    document.getElementById('vehicle-picker-modal')?.remove();
+                    break;
+                }
+                case 'oauth-mini':
+                    simulateOAuthFlowMini();
+                    break;
+                default:
+                    break;
+            }
+        });
 
         // Enhance map interactivity (click to quick-claim or spawn)
         function enhanceMap() {

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Tesla Trek — treasure hunts for Tesla drivers. Grok co-pilot. Fund the Cyberbeast. Join the waitlist." />
+  <meta property="og:title" content="Tesla Trek · Hunt the Drive · Fund the Cyberbeast" />
+  <meta property="og:description" content="Treasure hunts for Tesla drivers. Grok co-pilot on the glass. Join the waitlist." />
+  <meta property="og:type" content="website" />
+  <title>Tesla Trek · Hunt the Drive · Fund the Cyberbeast</title>
+  <style>
+    :root {
+      --bg: #030304;
+      --text: #f4f5f7;
+      --muted: #8b93a7;
+      --red: #e31937;
+      --cyan: #00e5ff;
+      --gold: #f5c542;
+      --line: #1c1c24;
+      --panel: #0a0a0e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 0; border-bottom: 1px solid var(--line); gap: 1rem; flex-wrap: wrap;
+    }
+    .logo { font-weight: 800; letter-spacing: 0.12em; font-size: 0.95rem; }
+    .logo span { color: var(--red); }
+    .nav { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .nav a {
+      font-size: 0.8rem; color: var(--muted); border: 1px solid var(--line);
+      padding: 0.45rem 0.8rem; border-radius: 999px;
+    }
+    .nav a:hover { color: var(--cyan); border-color: rgba(0,229,255,0.35); }
+    .badge {
+      font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--gold); border: 1px solid rgba(245,197,66,0.35);
+      padding: 0.4rem 0.75rem; border-radius: 999px;
+    }
+    .hero {
+      padding: 3.5rem 0 2.5rem;
+      display: grid; gap: 1.25rem;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(227,25,55,0.18), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 20%, rgba(0,229,255,0.08), transparent);
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 3.75rem);
+      line-height: 1.05; font-weight: 800; letter-spacing: -0.03em;
+      max-width: 16ch;
+    }
+    .hero h1 em { font-style: normal; color: var(--cyan); }
+    .sub { font-size: 1.1rem; color: var(--muted); max-width: 44ch; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.35rem; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 52px; padding: 0 1.35rem; border-radius: 12px;
+      font-weight: 700; font-size: 0.95rem; border: 1px solid transparent;
+      cursor: pointer; color: #001018; background: var(--cyan); font-family: inherit;
+    }
+    .btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+    .btn.gold { background: var(--gold); color: #1a1200; }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .grid2 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+      padding: 0.5rem 0 2.5rem;
+    }
+    @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: 18px; padding: 1.35rem;
+    }
+    .card h2 { font-size: 1.2rem; margin-bottom: 0.35rem; }
+    .card .hint { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+    label {
+      display: block; font-size: 0.75rem; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted); margin: 0.75rem 0 0.35rem;
+    }
+    input, select {
+      width: 100%; min-height: 48px; border-radius: 10px;
+      border: 1px solid var(--line); background: #060608; color: var(--text);
+      padding: 0 0.9rem; font: inherit;
+    }
+    input:focus, select:focus { outline: 1px solid rgba(0,229,255,0.45); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+    .form-msg {
+      margin-top: 0.85rem; font-size: 0.9rem; min-height: 1.3em;
+      color: var(--cyan);
+    }
+    .form-msg.err { color: #ff6b7a; }
+    .count {
+      margin-top: 0.75rem; font-size: 0.85rem; color: var(--muted);
+    }
+    .count strong { color: var(--gold); }
+
+    /* Share card */
+    #shareCard {
+      border-radius: 16px;
+      border: 1px solid rgba(0,229,255,0.35);
+      background:
+        radial-gradient(ellipse at 80% 0%, rgba(227,25,55,0.25), transparent 50%),
+        linear-gradient(160deg, #0c0c12, #050508);
+      padding: 1.5rem;
+      min-height: 220px;
+      position: relative;
+      overflow: hidden;
+    }
+    #shareCard::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.05) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+    #shareCard .inner { position: relative; z-index: 1; }
+    #shareCard .brand {
+      font-size: 0.7rem; letter-spacing: 0.2em; color: var(--cyan);
+      text-transform: uppercase; margin-bottom: 0.75rem;
+    }
+    #shareCard .claim {
+      font-size: 1.45rem; font-weight: 800; line-height: 1.15;
+      letter-spacing: -0.02em; margin-bottom: 0.5rem;
+    }
+    #shareCard .meta {
+      color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;
+    }
+    #shareCard .row {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      gap: 0.75rem; flex-wrap: wrap;
+    }
+    #shareCard .xp { color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+    #shareCard .handle { color: var(--red); font-weight: 650; font-size: 0.9rem; }
+    .share-tools {
+      display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem;
+    }
+    .share-tools .btn { min-height: 44px; font-size: 0.85rem; padding: 0 1rem; }
+
+    .grid3 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem; padding: 0 0 2.5rem;
+    }
+    .grid3 .card h3 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+    .grid3 .card p { color: var(--muted); font-size: 0.92rem; }
+    .grid3 .ico { font-size: 1.4rem; margin-bottom: 0.5rem; }
+
+    .fund {
+      border: 1px solid rgba(245,197,66,0.35);
+      border-radius: 20px; padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(245,197,66,0.08), transparent);
+      margin-bottom: 2.5rem;
+    }
+    .fund h2 { font-size: 1.3rem; margin-bottom: 0.4rem; }
+    .meter {
+      height: 14px; border-radius: 999px; background: #15151c;
+      overflow: hidden; margin: 1rem 0 0.5rem;
+    }
+    .meter > i {
+      display: block; height: 100%; width: 8%;
+      background: linear-gradient(90deg, var(--red), var(--gold));
+    }
+    .fund .meta-row {
+      display: flex; justify-content: space-between; color: var(--muted); font-size: 0.85rem;
+      flex-wrap: wrap; gap: 0.5rem;
+    }
+    .truth {
+      font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--line);
+      padding: 1.5rem 0 2.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">TESLA <span>TREK</span></div>
+      <div class="nav">
+        <a href="/car.html">Main screen</a>
+        <a href="#waitlist">Waitlist</a>
+        <a href="#share">Share card</a>
+        <a href="https://x.com/OmgawdMadeit" target="_blank" rel="noopener">@OmgawdMadeit</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <p class="badge" style="display:inline-block;width:fit-content">Grok co-pilot · Main-screen hunt layer</p>
+      <h1>Make the drive a game. <em>Fund the Cyberbeast.</em></h1>
+      <p class="sub">
+        Treasure hunts for Tesla drivers. Real-world caches. Family missions.
+        Grok as co-pilot on the glass. Built by a founder who demo-drove a Cybertruck
+        in Daytona — and decided to ship instead of wait.
+      </p>
+      <div class="cta-row">
+        <a class="btn" href="/car.html">Open main-screen HUD</a>
+        <a class="btn gold" href="#waitlist">Join waitlist</a>
+        <a class="btn ghost" href="#share">Generate share card</a>
+      </div>
+    </section>
+
+    <section class="fund" id="cyberbeast-fund">
+      <h2>◆ Cyberbeast Fund</h2>
+      <p class="sub" style="max-width:none;font-size:0.95rem">Public goal: buy the Cybertruck with Tesla Trek product revenue.</p>
+      <div class="meter" aria-label="Fund progress"><i id="fundBar"></i></div>
+      <div class="meta-row">
+        <span>Progress: early build · waitlist growing</span>
+        <span>Target: Cyberbeast</span>
+      </div>
+    </section>
+
+    <section class="grid2">
+      <!-- WAITLIST -->
+      <div class="card" id="waitlist">
+        <h2>Join the waitlist</h2>
+        <p class="hint">First access to White County drops, main-screen HUD updates, and Cyberbeast Fund milestones. No spam.</p>
+        <form id="waitlistForm" novalidate>
+          <label for="wlName">Name</label>
+          <input id="wlName" name="name" type="text" autocomplete="name" placeholder="Joseph" required />
+          <label for="wlEmail">Email</label>
+          <input id="wlEmail" name="email" type="email" autocomplete="email" placeholder="you@domain.com" required />
+          <div class="form-row">
+            <div>
+              <label for="wlCity">City / region</label>
+              <input id="wlCity" name="city" type="text" placeholder="Cleveland, GA" />
+            </div>
+            <div>
+              <label for="wlVehicle">Vehicle</label>
+              <select id="wlVehicle" name="vehicle">
+                <option value="">Select…</option>
+                <option>Cybertruck</option>
+                <option>Model Y</option>
+                <option>Model 3</option>
+                <option>Model S / X</option>
+                <option>Not yet — hunting first</option>
+              </select>
+            </div>
+          </div>
+          <div class="cta-row" style="margin-top:1.1rem">
+            <button type="submit" class="btn gold" id="wlSubmit">Join waitlist</button>
+          </div>
+          <p class="form-msg" id="wlMsg" role="status"></p>
+          <p class="count">Waitlist (this device + synced attempts): <strong id="wlCount">0</strong></p>
+        </form>
+      </div>
+
+      <!-- SHARE CARD -->
+      <div class="card" id="share">
+        <h2>Share card</h2>
+        <p class="hint">Customize, copy caption for X, or use native share. Perfect after a claim or mission.</p>
+        <label for="scMission">Mission / claim</label>
+        <input id="scMission" type="text" value="White County Family Drop" />
+        <div class="form-row">
+          <div>
+            <label for="scXp">XP</label>
+            <input id="scXp" type="text" value="+450 XP" />
+          </div>
+          <div>
+            <label for="scHandle">Handle</label>
+            <input id="scHandle" type="text" value="@OmgawdMadeit" />
+          </div>
+        </div>
+        <label for="scLine">Tagline</label>
+        <input id="scLine" type="text" value="Hunt the drive. Fund the Cyberbeast." />
+
+        <div style="margin-top:1rem" id="shareCard" aria-live="polite">
+          <div class="inner">
+            <div class="brand">Tesla Trek · Main screen</div>
+            <div class="claim" id="scClaimOut">White County Family Drop</div>
+            <div class="meta" id="scLineOut">Hunt the drive. Fund the Cyberbeast.</div>
+            <div class="row">
+              <span class="xp" id="scXpOut">+450 XP</span>
+              <span class="handle" id="scHandleOut">@OmgawdMadeit</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="share-tools">
+          <button type="button" class="btn" id="btnCopyCaption">Copy X caption</button>
+          <button type="button" class="btn ghost" id="btnCopyLink">Copy link</button>
+          <button type="button" class="btn gold" id="btnNativeShare">Share…</button>
+        </div>
+        <p class="form-msg" id="shareMsg" role="status"></p>
+      </div>
+    </section>
+
+    <section class="grid3">
+      <div class="card">
+        <div class="ico">◆</div>
+        <h3>Main-screen OS</h3>
+        <p>Arm’s-length UI. Missions, claim, voice, Fleet dock. Park to claim.</p>
+      </div>
+      <div class="card">
+        <div class="ico">✦</div>
+        <h3>Grok co-pilot</h3>
+        <p>Short Trek Mode lines. Next pin. Claim coach. Same AI already on Tesla glass.</p>
+      </div>
+      <div class="card">
+        <div class="ico">💎</div>
+        <h3>Real-world caches</h3>
+        <p>Cleveland → Yonah → Helen → Sautee → Anna Ruby. Fleet &lt;150m when live.</p>
+      </div>
+    </section>
+
+    <p class="truth">
+      Tesla Trek is an independent product of LVL LTD CO. Not affiliated with, endorsed by, or sponsored by Tesla, Inc. or xAI.
+      Tesla, Cybertruck, and Grok are trademarks of their respective owners. Real-world expeditions: park for claims; follow local laws.
+      Waitlist data is stored on your device and optionally emailed to the founder via FormSubmit (no spam; opt-in only).
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      const KEY = "tesla_trek_waitlist_v1";
+      const SITE = location.origin + location.pathname.replace(/founder\.html.?$/, "") || location.origin;
+      const FOUNDER_URL = location.href.split("#")[0];
+      const CAR_URL = new URL("car.html", FOUNDER_URL).href;
+
+      function loadList() {
+        try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+        catch { return []; }
+      }
+      function saveList(arr) {
+        localStorage.setItem(KEY, JSON.stringify(arr));
+        document.getElementById("wlCount").textContent = String(arr.length);
+        const pct = Math.min(40, 8 + arr.length * 2);
+        document.getElementById("fundBar").style.width = pct + "%";
+      }
+      saveList(loadList());
+
+      // Share card live preview
+      const scMission = document.getElementById("scMission");
+      const scXp = document.getElementById("scXp");
+      const scHandle = document.getElementById("scHandle");
+      const scLine = document.getElementById("scLine");
+      function paintCard() {
+        document.getElementById("scClaimOut").textContent = scMission.value || "Mission";
+        document.getElementById("scXpOut").textContent = scXp.value || "+XP";
+        document.getElementById("scHandleOut").textContent = scHandle.value || "@handle";
+        document.getElementById("scLineOut").textContent = scLine.value || "";
+      }
+      [scMission, scXp, scHandle, scLine].forEach((el) => el.addEventListener("input", paintCard));
+      paintCard();
+
+      function caption() {
+        return (
+          (scMission.value || "Tesla Trek") +
+          "\n" +
+          (scXp.value || "") +
+          "\n" +
+          (scLine.value || "Hunt the drive. Fund the Cyberbeast.") +
+          "\n\n" +
+          "Main-screen HUD + waitlist:\n" +
+          FOUNDER_URL +
+          "\nCar HUD: " +
+          CAR_URL +
+          "\n\n" +
+          (scHandle.value || "@OmgawdMadeit") +
+          " #Cybertruck #Tesla"
+        );
+      }
+
+      const shareMsg = document.getElementById("shareMsg");
+      document.getElementById("btnCopyCaption").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(caption());
+          shareMsg.textContent = "Caption copied — paste into X.";
+          shareMsg.className = "form-msg";
+        } catch {
+          shareMsg.textContent = "Copy failed — select text manually.";
+          shareMsg.className = "form-msg err";
+        }
+      });
+      document.getElementById("btnCopyLink").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(FOUNDER_URL + " #waitlist");
+          shareMsg.textContent = "Link copied.";
+          shareMsg.className = "form-msg";
+        } catch {
+          shareMsg.textContent = FOUNDER_URL;
+          shareMsg.className = "form-msg";
+        }
+      });
+      document.getElementById("btnNativeShare").addEventListener("click", async () => {
+        if (!navigator.share) {
+          shareMsg.textContent = "Native share unavailable — use Copy X caption.";
+          shareMsg.className = "form-msg err";
+          return;
+        }
+        try {
+          await navigator.share({
+            title: "Tesla Trek",
+            text: caption(),
+            url: FOUNDER_URL,
+          });
+          shareMsg.textContent = "Shared.";
+          shareMsg.className = "form-msg";
+        } catch {
+          shareMsg.textContent = "Share cancelled.";
+          shareMsg.className = "form-msg";
+        }
+      });
+
+      // Waitlist
+      const form = document.getElementById("waitlistForm");
+      const wlMsg = document.getElementById("wlMsg");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("wlName").value.trim();
+        const email = document.getElementById("wlEmail").value.trim();
+        const city = document.getElementById("wlCity").value.trim();
+        const vehicle = document.getElementById("wlVehicle").value;
+        if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          wlMsg.textContent = "Enter a valid name and email.";
+          wlMsg.className = "form-msg err";
+          return;
+        }
+        const entry = {
+          name, email, city, vehicle,
+          ts: new Date().toISOString(),
+          source: "founder-landing",
+        };
+        const list = loadList();
+        if (list.some((x) => x.email.toLowerCase() === email.toLowerCase())) {
+          wlMsg.textContent = "You’re already on this device’s waitlist.";
+          wlMsg.className = "form-msg";
+          return;
+        }
+        list.push(entry);
+        saveList(list);
+
+        const btn = document.getElementById("wlSubmit");
+        btn.disabled = true;
+        wlMsg.textContent = "Joining…";
+        wlMsg.className = "form-msg";
+
+        // Optional email notify via FormSubmit (no API key). Fails soft if blocked.
+        let remote = false;
+        try {
+          const res = await fetch("https://formsubmit.co/ajax/joe@tesla-trek.com", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              name,
+              email,
+              city,
+              vehicle,
+              _subject: "Tesla Trek waitlist: " + name,
+              message:
+                "Waitlist join\n" +
+                JSON.stringify(entry, null, 2) +
+                "\n\nReply to this person to confirm.",
+              _template: "table",
+              _captcha: "false",
+            }),
+          });
+          remote = res.ok;
+        } catch {
+          remote = false;
+        }
+
+        btn.disabled = false;
+        form.reset();
+        if (remote) {
+          wlMsg.textContent = "You’re on the list. Founder notified. Welcome to the hunt.";
+        } else {
+          wlMsg.textContent =
+            "Saved on this device. If email notify is offline, you’re still counted — founder can export later.";
+        }
+        wlMsg.className = "form-msg";
+      });
+    })();
+  </script>
+</body>
+</html>

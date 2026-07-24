@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Site-specific utilities used by homepage */
+@layer components {
+  .gold {
+    color: #facc15;
+  }
+  .section-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 1.5rem;
+  }
+  .nav-active {
+    background: #facc15;
+    color: #0a0f1a;
+    font-weight: 600;
+    border-radius: 9999px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+  .nav-link {
+    color: #facc15;
+  }
+  .nav-link:hover {
+    color: #fde047;
+  }
+  .range-ring {
+    width: 96px;
+    height: 96px;
+    border-radius: 9999px;
+    background: conic-gradient(#10b981 0% 78%, #334155 78% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .range-inner {
+    width: 72px;
+    height: 72px;
+    background: #0a0f1a;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .live-dot {
+    animation: pulse 2s infinite;
+  }
+  .topo {
+    background-image: linear-gradient(rgba(234, 179, 8, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(234, 179, 8, 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .quest-card {
+    transition: transform 0.2s;
+  }
+  .quest-card:hover {
+    transform: translateY(-2px);
+  }
+  .compass {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #facc15;
+    border-radius: 9999px;
+    opacity: 0.7;
+  }
+  .compass::before {
+    content: 'N';
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #facc15;
+  }
+  .compass::after {
+    content: 'S';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #facc15;
+  }
+  .compass .e {
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #facc15;
+  }
+  .compass .w {
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: #facc15;
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Responsive brand block — no mid-width collision ~1000px */
+  .brand-block {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+  .brand-title {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    white-space: nowrap;
+    font-size: clamp(1rem, 1.6vw + 0.55rem, 1.5rem);
+  }
+  .brand-tag {
+    font-size: clamp(0.55rem, 0.35vw + 0.45rem, 0.625rem);
+    color: #e31937;
+    letter-spacing: 0.12em;
+    margin-top: -0.1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: min(42vw, 28rem);
+  }
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .site-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  @media (max-width: 1100px) {
+    .brand-tag {
+      max-width: 14rem;
+    }
+    .site-header-nav {
+      order: 3;
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+  @media (max-width: 768px) {
+    .brand-title {
+      white-space: normal;
+    }
+    .brand-tag {
+      white-space: normal;
+      max-width: none;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
