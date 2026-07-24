@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#000000" />
@@ -67,6 +67,12 @@
       display: grid;
       grid-template-rows: auto auto 1fr auto;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .hud-main {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 1fr;
+      overflow: hidden;
     }
 
     /* ===== HEADER (Model Y top bar energy) ===== */
@@ -172,6 +178,9 @@
     .stage.active {
       display: grid;
       animation: stageIn .22s ease;
+    }
+    .stage[hidden] {
+      display: none !important;
     }
     @keyframes stageIn {
       from { opacity: 0; transform: translateY(6px); }
@@ -876,14 +885,15 @@
       </div>
     </header>
 
-    <nav class="section-nav" aria-label="Trek sections">
-      <button type="button" class="active" data-stage="ar" id="tabAr">AR Map</button>
-      <button type="button" data-stage="adventures" id="tabAdv">Adventures</button>
-      <button type="button" data-stage="rewards" id="tabRew">Rewards</button>
+    <nav class="section-nav" aria-label="Trek sections" role="tablist">
+      <button type="button" class="active" data-stage="ar" id="tabAr" role="tab" aria-controls="stageAr" aria-selected="true">AR Map</button>
+      <button type="button" data-stage="adventures" id="tabAdv" role="tab" aria-controls="stageAdventures" aria-selected="false">Adventures</button>
+      <button type="button" data-stage="rewards" id="tabRew" role="tab" aria-controls="stageRewards" aria-selected="false">Rewards</button>
     </nav>
 
     <!-- AR + quest panel -->
-    <section class="stage active" id="stageAr">
+    <main class="hud-main" id="hudMain">
+    <section class="stage active" id="stageAr" role="tabpanel" aria-labelledby="tabAr">
       <div class="ar-status-bar" id="arStatusBar" role="status" aria-live="polite">
         <span class="status-msg" id="arStatusMsg"><strong>TREK</strong> · loading status…</span>
         <button type="button" id="arStatusDismiss" aria-label="Dismiss status">Hide</button>
@@ -930,7 +940,7 @@
     </section>
 
     <!-- Curated adventures (Model Y Explore tiers) -->
-    <section class="stage" id="stageAdventures">
+    <section class="stage" id="stageAdventures" role="tabpanel" hidden aria-labelledby="tabAdv">
       <div class="adv-hero">
         <h2>Explore Adventures</h2>
         <p>Curated, location-based treks — same clarity as Explore Model Y. Pick a tier, load pins on AR, earn rewards.</p>
@@ -946,7 +956,7 @@
     </section>
 
     <!-- Rewards ledger -->
-    <section class="stage" id="stageRewards">
+    <section class="stage" id="stageRewards" role="tabpanel" hidden aria-labelledby="tabRew">
       <div class="reward-hero">
         <div>
           <h2>Rewards</h2>
@@ -972,6 +982,7 @@
       <div class="ledger" id="ledger"></div>
     </section>
 
+    </main>
     <footer>
       <div class="voice-bar" id="voiceBar">Say: <strong>start trek</strong> · claim · next · adventures · fleet</div>
       <div class="dock" role="toolbar" aria-label="Car HUD actions">
@@ -1554,9 +1565,13 @@
           }
           if (stageNodes[name]) stageNodes[name].classList.add("active");
           if (tabNodes[name]) tabNodes[name].classList.add("active");
-          // a11y: mark tab selection
+          // a11y: mark tab selection + hide inactive panels from AT
           Object.keys(tabNodes).forEach((k) => {
             if (tabNodes[k]) tabNodes[k].setAttribute("aria-selected", k === name ? "true" : "false");
+            if (stageNodes[k]) {
+              if (k === name) stageNodes[k].removeAttribute("hidden");
+              else stageNodes[k].setAttribute("hidden", "");
+            }
           });
         } finally {
           // Release on next frame so nested handlers can't re-enter mid-toggle
@@ -2422,8 +2437,6 @@
       /* Events */
       document.querySelectorAll(".section-nav button").forEach((b) => {
         // Passive-friendly: only toggle visibility of pre-rendered panels
-        b.setAttribute("role", "tab");
-        b.setAttribute("aria-selected", b.classList.contains("active") ? "true" : "false");
         b.addEventListener("click", (ev) => {
           ev.preventDefault();
           ev.stopPropagation();
