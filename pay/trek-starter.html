@@ -91,8 +91,19 @@
             'script[src*="vercel.live"], iframe[src*="vercel.live"], [data-vercel-toolbar], #vercel-live-feedback, vercel-live-feedback'
           ).forEach(function (n) { n.remove(); });
         };
-        kill();
-        new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+        // Guarded observer — never re-enter on our own removals (avoids main-thread freeze)
+        var busy = false, kills = 0;
+        var safeKill = function () {
+          if (busy || kills > 40) return;
+          busy = true;
+          try { kill(); kills++; } finally { setTimeout(function () { busy = false; }, 0); }
+        };
+        safeKill();
+        var mo = new MutationObserver(function () { if (!busy) safeKill(); });
+        if (document.body) mo.observe(document.body, { childList: true, subtree: false });
+        else document.addEventListener('DOMContentLoaded', function () {
+          mo.observe(document.body, { childList: true, subtree: false });
+        });
       } catch (e) {}
     })();
     </script>

@@ -21,33 +21,119 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/site.css">
     <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
     <script src="/vendor/leaflet/leaflet.js" defer></script>
     <style>
-        /* fallback if site.css missing during local open */
-        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        /* Design system bridge — tokens drive marketing + HUD */
+        body {
+          font-family: var(--tt-font);
+          background: var(--tt-bg-1);
+          color: var(--tt-text);
+        }
+        .section-card {
+          border-radius: var(--tt-r-2xl);
+          border: 1px solid var(--tt-edge-soft);
+          background: linear-gradient(180deg, rgba(20,26,36,.95), rgba(10,15,26,.98));
+        }
+        .quest-card .quest-media {
+          height: 7.5rem;
+          border-radius: var(--tt-r-xl);
+          background-size: cover;
+          background-position: center;
+          position: relative;
+          overflow: hidden;
+          margin-bottom: 0.5rem;
+        }
+        .quest-card .quest-media::after {
+          content: "";
+          position: absolute; inset: 0;
+          background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,.72));
+        }
+        .quest-card .quest-media .quest-badge {
+          position: absolute; bottom: 8px; left: 10px; z-index: 1;
+          font-size: 11px; font-weight: 700; letter-spacing: .06em;
+          text-transform: uppercase; color: var(--tt-gold);
+        }
+        .vehicle-visual {
+          width: 11rem; height: 7.5rem;
+          border-radius: var(--tt-r-2xl);
+          border: 1px solid var(--tt-edge-soft);
+          background: #0c121c center/cover no-repeat;
+          box-shadow: 0 12px 40px rgba(0,0,0,.45);
+          flex-shrink: 0;
+        }
+        .range-ring {
+          transition: background 0.8s var(--tt-ease);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .range-ring { transition: none; }
+        }
+        .tt-btn {
+          min-height: var(--tt-touch);
+          border-radius: var(--tt-r-2xl);
+          font-weight: 600;
+          transition: transform var(--tt-dur) var(--tt-ease), opacity var(--tt-dur) var(--tt-ease), background var(--tt-dur);
+        }
+        .tt-btn:active { transform: scale(0.97); }
+        .stat-chip {
+          min-height: 2.5rem;
+          display: inline-flex; align-items: center; gap: 0.35rem;
+        }
+        .stat-chip .tt-ico { width: 1rem; height: 1rem; color: var(--tt-gold); }
     </style>
 
     <script>
-    // Production: strip Vercel Live/Feedback toolbar if platform injects it
+    // Production: strip Vercel Live/Feedback toolbar (guarded — no infinite mutation loop)
     (function () {
       try {
         var h = location.hostname;
         var prod = h === 'www.tesla-trek.com' || h === 'tesla-trek.com';
         if (!prod) return;
+        var SEL = 'script[src*="vercel.live"], iframe[src*="vercel.live"], [data-vercel-toolbar], #vercel-live-feedback, vercel-live-feedback';
+        var busy = false, kills = 0;
         var kill = function () {
-          document.querySelectorAll(
-            'script[src*="vercel.live"], iframe[src*="vercel.live"], [data-vercel-toolbar], #vercel-live-feedback, vercel-live-feedback'
-          ).forEach(function (n) { n.remove(); });
+          if (busy || kills > 40) return;
+          busy = true;
+          try {
+            var nodes = document.querySelectorAll(SEL);
+            if (!nodes.length) return;
+            kills++;
+            for (var i = 0; i < nodes.length; i++) { try { nodes[i].remove(); } catch (e) {} }
+          } finally {
+            setTimeout(function () { busy = false; }, 0);
+          }
         };
         kill();
-        new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+        var mo = new MutationObserver(function () { if (!busy) kill(); });
+        document.addEventListener('DOMContentLoaded', function () {
+          if (document.body) mo.observe(document.body, { childList: true, subtree: false });
+        });
+        var t = 0;
+        var iv = setInterval(function () {
+          kill();
+          if (++t > 30 || kills > 40) { clearInterval(iv); try { mo.disconnect(); } catch (e) {} }
+        }, 2000);
       } catch (e) {}
     })();
     </script>
 </head>
 <body class="bg-[#0a0f1a] text-white">
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M12 2l4 6-4 14L8 8l4-6z" fill="currentColor"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 10-14h-7l0-6z" fill="currentColor"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 10-14 0c0 5.8 7 12 7 12z" fill="none" stroke="currentColor" stroke-width="1.75"/><circle cx="12" cy="10" r="2.5" fill="currentColor"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M14.5 9.5l-2 5-5 2 2-5 5-2z" fill="currentColor"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l12-7L8 5z" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9l3-6z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+  <symbol id="i-mountain" viewBox="0 0 24 24"><path d="M3 19h18L14 6l-3.5 6L8 9 3 19z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 14c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M4 14l2-5a3 3 0 012.7-1.8h6.6A3 3 0 0118 9l2 5v4a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H7v1a1 1 0 01-1 1H5a1 1 0 01-1-1v-4z" fill="none" stroke="currentColor" stroke-width="1.75"/><circle cx="7.5" cy="14.5" r="1.2" fill="currentColor"/><circle cx="16.5" cy="14.5" r="1.2" fill="currentColor"/></symbol>
+</svg>
   <!-- Safe public banner — no financial account, job, or GPS PII -->
   <div class="bg-black border-b border-emerald-500/30 text-[12px] py-2.5">
     <div class="max-w-7xl mx-auto px-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-emerald-300/90">
@@ -62,8 +148,8 @@
     <div class="border-b border-white/10 bg-black/70 backdrop-blur">
         <div class="max-w-7xl mx-auto px-6 py-4 site-header">
             <div class="brand-block">
-                <div class="w-9 h-9 shrink-0 bg-emerald-500 rounded-xl flex items-center justify-center shadow-inner">
-                    <span class="text-white text-2xl" aria-hidden="true">◆</span>
+                <div class="w-9 h-9 shrink-0 bg-emerald-500 rounded-xl flex items-center justify-center shadow-inner" aria-hidden="true">
+                    <svg class="tt-ico text-white" width="18" height="18"><use href="#i-diamond"/></svg>
                 </div>
                 <div class="min-w-0">
                     <div class="brand-title">TESLA TREK</div>
@@ -72,15 +158,15 @@
             </div>
 
             <div class="site-header-nav text-sm">
-                <a href="/car" class="px-4 py-1.5 rounded-full bg-[#3E6AE1] hover:bg-[#355dc9] text-white font-semibold flex items-center gap-1" title="Main-screen AR · adventures · rewards">Car HUD</a>
-                <button type="button" data-action="show-fleet" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Vehicles</button>
-                <button type="button" data-action="show-quests" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Quests</button>
-                <button type="button" data-action="fly-map" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Map</button>
-                <button type="button" data-action="connect-tesla" class="px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1">Community</button>
-                <a href="/pay/trek-starter" class="px-3 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1" title="Pay 25 DOGE · Starter pack">Pay 25 Ð</a>
-                <button type="button" data-action="show-grok" class="px-3 py-1.5 rounded-full bg-purple-600/80 hover:bg-purple-600 text-xs flex items-center gap-1">Grok</button>
-                <button type="button" data-action="spawn-treasure" class="px-3 py-1.5 rounded-full hover:bg-white/5 text-xs flex items-center gap-1" title="Drop treasure marker">💎</button>
-                <button type="button" data-action="boost-fleet" class="px-2 text-xs text-emerald-400 hover:text-emerald-300" title="Fleet boost">⚡⚡</button>
+                <a href="/car" class="tt-btn px-4 py-1.5 rounded-full bg-[#3E6AE1] hover:bg-[#355dc9] text-white font-semibold flex items-center gap-1.5" title="Main-screen AR · adventures · rewards"><svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-car"/></svg>Car HUD</a>
+                <button type="button" data-action="show-fleet" class="tt-btn px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1.5" aria-label="Vehicles"><svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-car"/></svg>Vehicles</button>
+                <button type="button" data-action="show-quests" class="tt-btn px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1.5" aria-label="Quests"><svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-mountain"/></svg>Quests</button>
+                <button type="button" data-action="fly-map" class="tt-btn px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1.5" aria-label="Map"><svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-compass"/></svg>Map</button>
+                <button type="button" data-action="connect-tesla" class="tt-btn px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1.5">Community</button>
+                <a href="/pay/trek-starter" class="tt-btn px-3 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1" title="Pay 25 DOGE · Starter pack">Pay 25 Ð</a>
+                <button type="button" data-action="show-grok" class="tt-btn px-3 py-1.5 rounded-full bg-purple-600/80 hover:bg-purple-600 text-xs flex items-center gap-1.5" aria-label="Open Grok co-pilot"><svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-spark"/></svg>Grok</button>
+                <button type="button" data-action="spawn-treasure" class="tt-btn px-3 py-1.5 rounded-full hover:bg-white/5 text-xs flex items-center gap-1.5" title="Drop treasure marker" aria-label="Drop treasure marker"><svg class="tt-ico text-yellow-400" width="14" height="14" aria-hidden="true"><use href="#i-gem"/></svg></button>
+                <button type="button" data-action="boost-fleet" class="tt-btn px-2 text-xs text-emerald-400 hover:text-emerald-300" title="Fleet boost" aria-label="Fleet boost"><svg class="tt-ico" width="16" height="16" aria-hidden="true"><use href="#i-bolt"/></svg></button>
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
@@ -101,7 +187,7 @@
                 <div class="text-white/60">Let's unearth the extraordinary</div>
             </div>
             <div class="px-4 py-1 rounded-full bg-yellow-400/10 text-yellow-400 text-sm flex items-center gap-2 border border-yellow-400/30">
-                <span>✓</span> <span>Premium Explorer</span>
+                <svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg> <span>Premium Explorer</span>
             </div>
         </div>
 
@@ -117,10 +203,10 @@
 
                         <div class="flex items-center gap-4">
                             <!-- Range Circle -->
-                            <div class="range-ring" id="range-ring" style="background: conic-gradient(#10b981 0% 64%, #334155 64% 100%)">
+                            <div class="range-ring" id="range-ring" style="background: conic-gradient(#10b981 0% 0%, #334155 0% 100%)" data-range-target="64" aria-label="Battery range">
                                 <div class="range-inner">
                                     <div class="text-center leading-none">
-                                        <div id="range-pct" class="text-4xl font-bold text-yellow-400">64%</div>
+                                        <div id="range-pct" class="text-4xl font-bold text-yellow-400 tt-skeleton">64%</div>
                                         <div class="text-[10px] text-white/60 -mt-1">range</div>
                                     </div>
                                 </div>
@@ -129,28 +215,28 @@
                             <div>
                                 <div id="vehicle-name" class="text-3xl font-semibold tracking-tight">MODEL S PLAID</div>
                                 <div id="vehicle-model" class="text-white/70">Model S Plaid</div>
-                                <div id="vehicle-location" class="text-sm text-white/60 mt-1 flex items-center gap-1">📍 San Francisco Bay, CA</div>
+                                <div id="vehicle-location" class="text-sm text-white/60 mt-1 flex items-center gap-1.5"><svg class="tt-ico text-emerald-400" width="14" height="14" aria-hidden="true"><use href="#i-pin"/></svg> San Francisco Bay, CA</div>
                             </div>
                         </div>
 
                         <div class="mt-4 flex flex-wrap items-center gap-2">
-                            <a href="/pay/trek-starter" class="bg-emerald-500 hover:bg-emerald-400 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2">Pay 25 DOGE · Starter</a>
-                            <button type="button" data-action="start-trek" class="bg-yellow-400 hover:bg-yellow-300 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2">
-                                ▶ Start Trek
+                            <a href="/pay/trek-starter" class="tt-btn bg-emerald-500 hover:bg-emerald-400 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2">Pay 25 DOGE · Starter</a>
+                            <button type="button" data-action="start-trek" class="tt-btn bg-yellow-400 hover:bg-yellow-300 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2">
+                                <svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-play"/></svg> Start Trek
                             </button>
-                            <button type="button" data-action="charge-vehicle" class="bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-4 py-2 rounded-2xl flex items-center gap-2">
-                                ⚡ Charge
+                            <button type="button" data-action="charge-vehicle" class="tt-btn bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-4 py-2 rounded-2xl flex items-center gap-2" aria-label="Charge vehicle">
+                                <svg class="tt-ico text-yellow-400" width="14" height="14" aria-hidden="true"><use href="#i-bolt"/></svg> Charge
                             </button>
-                            <button type="button" data-action="navigate-quest" class="bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-4 py-2 rounded-2xl flex items-center gap-2">
-                                🧭 Navigate
+                            <button type="button" data-action="navigate-quest" class="tt-btn bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-4 py-2 rounded-2xl flex items-center gap-2" aria-label="Navigate to quest">
+                                <svg class="tt-ico text-cyan-300" width="14" height="14" aria-hidden="true"><use href="#i-compass"/></svg> Navigate
                             </button>
-                            <button type="button" data-action="claim-gps" class="bg-emerald-600 hover:bg-emerald-500 text-sm px-4 py-2 rounded-2xl flex items-center gap-2" title="Real GPS claim (&lt;150m)">
-                                📍 Claim at Location (GPS)
+                            <button type="button" data-action="claim-gps" class="tt-btn bg-emerald-600 hover:bg-emerald-500 text-sm px-4 py-2 rounded-2xl flex items-center gap-2" title="Real GPS claim (&lt;150m)" aria-label="Claim at location with GPS">
+                                <svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-pin"/></svg> Claim at Location (GPS)
                             </button>
-                            <button type="button" data-action="complete-hunt" class="bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-3 py-2 rounded-2xl">Complete Hunt</button>
-                            <button type="button" data-action="cancel-hunt" class="text-xs text-white/50 px-2">Cancel</button>
-                            <button type="button" data-action="demo-pass" class="ml-1 text-xs px-3 py-1 rounded-full border border-white/20 hover:bg-white/5">📲 Use Demo Pass</button>
-                            <button type="button" data-action="claim-gps" class="ml-1 text-xs px-3 py-1 rounded-full bg-emerald-700/70 hover:bg-emerald-700">GPS Claim</button>
+                            <button type="button" data-action="complete-hunt" class="tt-btn bg-white/5 hover:bg-white/10 border border-white/20 text-sm px-3 py-2 rounded-2xl">Complete Hunt</button>
+                            <button type="button" data-action="cancel-hunt" class="text-xs text-white/50 px-2 min-h-[44px]">Cancel</button>
+                            <button type="button" data-action="demo-pass" class="ml-1 text-xs px-3 py-1 rounded-full border border-white/20 hover:bg-white/5 min-h-[44px]">Use Demo Pass</button>
+                            <button type="button" data-action="claim-gps" class="ml-1 text-xs px-3 py-1 rounded-full bg-emerald-700/70 hover:bg-emerald-700 min-h-[44px]">GPS Claim</button>
                         </div>
 
                         <div class="mt-3 text-[11px] text-white/50"><span id="range-stats-line">64% • 346 km Estimated range</span> • <button type="button" data-action="copy-dogepay" class="cursor-pointer underline decoration-dotted bg-transparent border-0 p-0 text-inherit text-[11px]">DogePay rewards</button></div>
@@ -164,10 +250,9 @@
                         </div>
                     </div>
 
-                    <!-- Car visual -->
-                    <div class="w-40 h-28 bg-slate-800 rounded-2xl flex items-center justify-center text-6xl border border-white/10">
-                        🚙
-                    </div>
+                    <!-- Car visual — model silhouette, not emoji placeholder -->
+                    <div class="vehicle-visual" id="vehicle-visual" role="img" aria-label="Model S Plaid illustration"
+                         style="background-image:url('/images/vehicles/model-s-plaid.jpg')"></div>
                 </div>
             </div>
 
@@ -187,7 +272,7 @@
 
                 <!-- Vault + Compass overlay -->
                 <div class="absolute bottom-4 right-4 bg-black/70 px-3 py-1 rounded-xl text-xs flex items-center gap-2 border border-yellow-400/30">
-                    <span class="text-yellow-400">📦</span> 
+                    <svg class="tt-ico text-yellow-400" width="14" height="14" aria-hidden="true"><use href="#i-gem"/></svg>
                     <span class="font-medium">XYO Vault</span>
                 </div>
 
@@ -199,7 +284,9 @@
         <div class="mt-6 section-card p-4">
             <div class="text-xs text-white/60 mb-1">Active Quest</div>
             <div class="flex gap-4 items-start">
-                <div class="w-14 h-14 bg-emerald-900 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0">💎</div>
+                <div class="w-14 h-14 bg-emerald-900 rounded-2xl flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                    <svg class="tt-ico text-emerald-300" width="28" height="28"><use href="#i-gem"/></svg>
+                </div>
                 <div class="flex-1 min-w-0">
                     <div id="active-quest-title" class="font-semibold">Yosemite Sentinel</div>
                     <div id="active-quest-desc" class="text-sm text-white/70">Reach 3 legendary viewpoints in Yosemite National Park.</div>
@@ -228,8 +315,10 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Sierra Summit -->
-                <div data-action="quest-rec" data-quest-idx="0" class="quest-card section-card p-3 cursor-pointer">
-                    <div class="h-20 bg-yellow-900 rounded-xl flex items-center justify-center text-4xl mb-2">🏔️</div>
+                <div data-action="quest-rec" data-quest-idx="0" class="quest-card section-card p-3 cursor-pointer tt-press" role="button" tabindex="0" aria-label="Sierra Summit adventure">
+                    <div class="quest-media" style="background-image:url('/images/adventures/sierra-summit.jpg')">
+                      <span class="quest-badge"><svg class="tt-ico" width="12" height="12" aria-hidden="true"><use href="#i-mountain"/></svg> Sierra</span>
+                    </div>
                     <div class="font-semibold">Sierra Summit</div>
                     <div class="text-xs text-white/60">Eastern Sierra, CA</div>
                     <div class="mt-1 text-xs flex items-center gap-2">
@@ -240,8 +329,10 @@
                 </div>
 
                 <!-- Pacific Pulse -->
-                <div data-action="quest-rec" data-quest-idx="1" class="quest-card section-card p-3 cursor-pointer">
-                    <div class="h-20 bg-blue-900 rounded-xl flex items-center justify-center text-4xl mb-2">🌊</div>
+                <div data-action="quest-rec" data-quest-idx="1" class="quest-card section-card p-3 cursor-pointer tt-press" role="button" tabindex="0" aria-label="Pacific Pulse adventure">
+                    <div class="quest-media" style="background-image:url('/images/adventures/pacific-pulse.jpg')">
+                      <span class="quest-badge"><svg class="tt-ico" width="12" height="12" aria-hidden="true"><use href="#i-wave"/></svg> Coast</span>
+                    </div>
                     <div class="font-semibold">Pacific Pulse</div>
                     <div class="text-xs text-white/60">Big Sur, CA</div>
                     <div class="mt-1 text-xs flex items-center gap-2">
@@ -252,8 +343,10 @@
                 </div>
 
                 <!-- Desert Voyager -->
-                <div data-action="quest-rec" data-quest-idx="2" class="quest-card section-card p-3 cursor-pointer">
-                    <div class="h-20 bg-orange-900 rounded-xl flex items-center justify-center text-4xl mb-2">🏜️</div>
+                <div data-action="quest-rec" data-quest-idx="2" class="quest-card section-card p-3 cursor-pointer tt-press" role="button" tabindex="0" aria-label="Desert Voyager adventure">
+                    <div class="quest-media" style="background-image:url('/images/adventures/desert-voyager.jpg')">
+                      <span class="quest-badge"><svg class="tt-ico" width="12" height="12" aria-hidden="true"><use href="#i-sun"/></svg> Desert</span>
+                    </div>
                     <div class="font-semibold">Desert Voyager</div>
                     <div class="text-xs text-white/60">Joshua Tree, CA</div>
                     <div class="mt-1 text-xs flex items-center gap-2">
@@ -862,6 +955,31 @@
             }, 1400);
         }
 
+        function animateRangeRing() {
+            const ring = document.getElementById('range-ring');
+            const pctEl = document.getElementById('range-pct');
+            if (!ring || !pctEl) return;
+            const target = Number(ring.getAttribute('data-range-target') || 64);
+            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            pctEl.classList.remove('tt-skeleton');
+            if (reduce) {
+                ring.style.background = `conic-gradient(#10b981 0% ${target}%, #334155 ${target}% 100%)`;
+                pctEl.textContent = target + '%';
+                return;
+            }
+            const t0 = performance.now();
+            const dur = 900;
+            function frame(now) {
+                const p = Math.min(1, (now - t0) / dur);
+                const eased = 1 - Math.pow(1 - p, 3);
+                const v = Math.round(target * eased);
+                ring.style.background = `conic-gradient(#10b981 0% ${v}%, #334155 ${v}% 100%)`;
+                pctEl.textContent = v + '%';
+                if (p < 1) requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        }
+
         // Init
         function initUI() {
             // Init the live map in the right panel
@@ -872,6 +990,9 @@
 
             // Initial active quest
             updateActiveQuestUI();
+
+            // Range ring fills from 0 → current once on load
+            setTimeout(animateRangeRing, 120);
 
             // Keyrd hint (dev)
             console.log('%c[Tesla Trek Protocol] Vehicles nav opens fleet list (Plaid VINs included). Connect Real Fleet opens OAuth + picker.', 'color:#666');

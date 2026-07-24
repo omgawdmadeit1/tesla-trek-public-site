@@ -22,25 +22,27 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/tokens.css">
   <!-- UX ref: tesla.com/modely — cabin-dark adaptation of Explore / specs / CTA patterns -->
   <style>
     :root {
-      --bg: #000;
-      --panel: #0b0d12;
-      --panel-2: #11141b;
-      --edge: #1c1f26;
-      --text: #f4f4f4;
-      --muted: #8e959e;
-      --tesla-blue: #3e6ae1;
-      --tesla-sky: #008ee6;
-      --cyan: #00d4ff;
-      --gold: #e8b84a;
-      --green: #3dd68c;
-      --red: #cc0000;
-      --touch: 64px;
-      --r: 10px;
-      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      --display: system-ui, -apple-system, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      /* tokens.css supplies --tt-* and aliases; keep local fallbacks if tokens fail to load */
+      --bg: var(--tt-bg-0, #000);
+      --panel: var(--tt-bg-2, #0b0d12);
+      --panel-2: var(--tt-bg-3, #11141b);
+      --edge: var(--tt-edge, #1c1f26);
+      --text: var(--tt-text, #f4f4f4);
+      --muted: var(--tt-muted, #8e959e);
+      --tesla-blue: var(--tt-blue, #3e6ae1);
+      --tesla-sky: var(--tt-sky, #008ee6);
+      --cyan: var(--tt-cyan, #00d4ff);
+      --gold: var(--tt-gold, #e8b84a);
+      --green: var(--tt-emerald, #3dd68c);
+      --red: var(--tt-red, #cc0000);
+      --touch: var(--tt-touch-lg, 52px);
+      --r: var(--tt-r-md, 12px);
+      --font: var(--tt-font, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+      --display: var(--tt-display, system-ui, -apple-system, "SF Pro Display", "Segoe UI", Roboto, sans-serif);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -146,39 +148,62 @@
       text-transform: uppercase;
       color: var(--muted);
       border-bottom: 2px solid transparent;
+      transition: color .15s ease, background .15s ease, border-color .15s ease;
     }
     .section-nav button.active {
       color: var(--text);
       border-bottom-color: var(--tesla-blue);
       background: linear-gradient(180deg, rgba(62,106,225,.12), transparent);
     }
+    .section-nav button:focus-visible {
+      outline: 2px solid rgba(62,106,225,.65);
+      outline-offset: -2px;
+    }
 
     /* ===== STAGES =====
-       Pre-rendered panels; tab switch only toggles active class (no DOM rebuild).
-       content-visibility keeps off-screen stages cheap for INP. */
+       Pre-rendered panels; tab switch only toggles .active (no DOM rebuild).
+       Avoid content-visibility:auto here — toggling display + content-visibility
+       has caused main-thread freezes in Chromium when GPS rebuilds pin nodes. */
     .stage {
       min-height: 0;
       overflow: hidden;
       display: none;
-      content-visibility: auto;
-      contain: layout style paint;
     }
     .stage.active {
       display: grid;
-      content-visibility: visible;
+      animation: stageIn .22s ease;
+    }
+    @keyframes stageIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .stage.active { animation: none; }
     }
 
     /* --- AR MAP --- */
     #stageAr {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+    }
+    #stageAr .ar-main {
+      min-height: 0;
+      display: grid;
       grid-template-columns: 1.4fr 1fr;
+      overflow: hidden;
     }
     @media (max-width: 900px) {
-      #stageAr { grid-template-columns: 1fr; grid-template-rows: 1.1fr 1fr; }
+      #stageAr .ar-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1.1fr 1fr;
+      }
     }
     .ar-viewport {
       position: relative;
       border-right: 1px solid var(--edge);
       overflow: hidden;
+      min-height: 0;
       background:
         linear-gradient(180deg, #0a1628 0%, #061018 38%, #0a0c10 55%, #12161c 100%);
     }
@@ -246,8 +271,8 @@
     }
     .pin {
       position: absolute; transform: translate(-50%, -100%);
-      min-width: 72px; min-height: 56px;
-      padding: 8px 10px 14px;
+      min-width: 72px; min-height: 44px;
+      padding: 8px 10px 12px;
       border-radius: 12px 12px 12px 4px;
       border: 1px solid rgba(0,212,255,.55);
       background: rgba(6, 14, 22, 0.92);
@@ -256,6 +281,12 @@
       text-align: center; line-height: 1.15;
       z-index: 3;
       box-shadow: 0 8px 24px rgba(0,0,0,.45);
+      /* Keep labels inside the AR field (status bar is a sibling above .ar-main) */
+      max-width: 42%;
+    }
+    .ar-viewport {
+      /* room under top chrome labels so pin heads don't crowd the sky label */
+      --pin-top-min: 18%;
     }
     .pin .dist { display: block; font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
     .pin.selected {
@@ -283,15 +314,58 @@
       font-size: 15px; text-align: center;
     }
     .next-badge strong { color: var(--cyan); }
+    /* Transient toasts sit at the BOTTOM of the AR field — never over pin labels */
     .map-toast {
-      position: absolute; left: 50%; top: 18%; transform: translateX(-50%);
-      z-index: 8; min-height: 44px; max-width: 90%;
+      position: absolute; left: 50%; bottom: 12px; top: auto; transform: translateX(-50%);
+      z-index: 8; min-height: 44px; max-width: min(92%, 420px);
       padding: 10px 18px; border-radius: 999px;
       background: rgba(0,0,0,.88); border: 1px solid var(--edge);
-      font-size: 15px; opacity: 0; pointer-events: none; transition: opacity .2s;
-      text-align: center;
+      font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s;
+      text-align: center; line-height: 1.3;
     }
     .map-toast.show { opacity: 1; }
+
+    /* Persistent status strip — own layout row, never overlaps pins */
+    .ar-status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 40px;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--edge);
+      background: linear-gradient(90deg, rgba(62,106,225,.12), rgba(11,13,18,.98));
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .ar-status-bar strong { color: var(--cyan); font-weight: 650; }
+    .ar-status-bar .status-msg {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ar-status-bar button {
+      flex-shrink: 0;
+      min-width: 44px;
+      min-height: 36px;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: 1px solid var(--edge);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .ar-status-bar button:hover,
+    .ar-status-bar button:focus-visible {
+      color: var(--text);
+      border-color: var(--tesla-blue);
+      outline: 2px solid rgba(62,106,225,.45);
+      outline-offset: 1px;
+    }
+    .ar-status-bar.is-hidden { display: none; }
 
     .side {
       display: grid;
@@ -568,14 +642,18 @@
     .ledger-row .when { font-size: 12px; color: var(--muted); }
     .ledger-row .gain { text-align: right; color: var(--gold); font-weight: 700; font-size: 14px; }
     .empty-ledger {
-      text-align: center; color: var(--muted); padding: 48px 20px; line-height: 1.5;
+      text-align: center; color: var(--muted); padding: 36px 20px; line-height: 1.5;
+      border: 1px dashed var(--edge); border-radius: var(--r);
+      margin: 12px; background: rgba(255,255,255,.02);
     }
+    .empty-ledger strong { display:block; color: var(--text); margin-bottom: 6px; font-size: 15px; }
 
     /* ===== DOCK ===== */
     footer {
       border-top: 1px solid var(--edge);
       background: #05070b;
-      padding: 10px 14px 12px;
+      /* Extra bottom padding for iOS home indicator / Safari chrome */
+      padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
       display: grid;
       gap: 8px;
     }
@@ -600,20 +678,27 @@
       gap: 8px;
     }
     .dock button {
-      min-height: var(--touch);
-      border-radius: 8px;
+      min-height: max(var(--touch), 48px);
+      min-width: 44px;
+      border-radius: var(--r);
       background: var(--panel-2);
       border: 1px solid var(--edge);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: .04em;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 4px;
+      transition: transform .15s ease, opacity .15s ease, border-color .15s ease;
     }
-    .dock button .ico { font-size: 18px; line-height: 1; }
+    .dock button .ico {
+      width: 22px; height: 22px;
+      display: grid; place-items: center;
+      line-height: 1;
+    }
+    .dock button .ico svg { width: 20px; height: 20px; display: block; }
     .dock button.primary { border-color: rgba(62,106,225,.55); color: #9bb6ff; }
     .dock button.cta {
       background: var(--tesla-blue);
@@ -621,7 +706,15 @@
       color: #fff;
     }
     .dock button.gold { border-color: rgba(232,184,74,.45); color: var(--gold); }
-    .dock button:active { transform: scale(.98); opacity: .92; }
+    .dock button:active { transform: scale(.96); opacity: .92; }
+    .dock button:focus-visible {
+      outline: 2px solid rgba(62,106,225,.65);
+      outline-offset: 2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .dock button { transition: none; }
+      .dock button:active { transform: none; }
+    }
     .park-note {
       text-align: center;
       font-size: 11px;
@@ -710,19 +803,56 @@
   </style>
 
     <script>
-    // Production: strip Vercel Live/Feedback toolbar if platform injects it
+    // Production: strip Vercel Live/Feedback toolbar if platform injects it.
+    // IMPORTANT: never re-enter on mutations we caused — a naive subtree observer
+    // that removes nodes re-fires forever and freezes the main thread (tab clicks
+    // + GPS pin re-renders both thrash the DOM).
     (function () {
       try {
         var h = location.hostname;
         var prod = h === 'www.tesla-trek.com' || h === 'tesla-trek.com';
         if (!prod) return;
+        var SEL =
+          'script[src*="vercel.live"], iframe[src*="vercel.live"], [data-vercel-toolbar], #vercel-live-feedback, vercel-live-feedback';
+        var busy = false;
+        var kills = 0;
         var kill = function () {
-          document.querySelectorAll(
-            'script[src*="vercel.live"], iframe[src*="vercel.live"], [data-vercel-toolbar], #vercel-live-feedback, vercel-live-feedback'
-          ).forEach(function (n) { n.remove(); });
+          if (busy || kills > 40) return;
+          busy = true;
+          try {
+            var nodes = document.querySelectorAll(SEL);
+            if (!nodes.length) return;
+            kills += 1;
+            for (var i = 0; i < nodes.length; i++) {
+              try { nodes[i].remove(); } catch (e) {}
+            }
+          } finally {
+            // Defer clear so the removal mutation batch is ignored
+            setTimeout(function () { busy = false; }, 0);
+          }
         };
         kill();
-        new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+        // Shallow body watch only — do not observe entire subtree (GPS pin rebuilds)
+        var mo = new MutationObserver(function () {
+          if (busy) return;
+          kill();
+        });
+        if (document.body) {
+          mo.observe(document.body, { childList: true, subtree: false });
+        } else {
+          document.addEventListener('DOMContentLoaded', function () {
+            mo.observe(document.body, { childList: true, subtree: false });
+          });
+        }
+        // Safety net without mutation storms
+        var ticks = 0;
+        var iv = setInterval(function () {
+          kill();
+          if (++ticks > 30 || kills > 40) {
+            clearInterval(iv);
+            try { mo.disconnect(); } catch (e) {}
+          }
+        }, 2000);
       } catch (e) {}
     })();
     </script>
@@ -754,17 +884,22 @@
 
     <!-- AR + quest panel -->
     <section class="stage active" id="stageAr">
+      <div class="ar-status-bar" id="arStatusBar" role="status" aria-live="polite">
+        <span class="status-msg" id="arStatusMsg"><strong>TREK</strong> · loading status…</span>
+        <button type="button" id="arStatusDismiss" aria-label="Dismiss status">Hide</button>
+      </div>
+      <div class="ar-main">
       <div class="ar-viewport" id="arViewport" aria-label="AR hunt layer">
         <div class="ar-sky"></div>
         <div class="ar-ground"></div>
         <div class="ar-horizon"></div>
         <div class="ar-label">Hunt AR · use Tesla nav for routing</div>
-        <div class="ar-compass"><span id="compassN">N</span>HDG</div>
+        <div class="ar-compass" aria-label="Compass heading"><span id="compassN">N</span>HDG</div>
         <div class="ring-pulse" aria-hidden="true"></div>
-        <div class="claim-ring" title="150m claim radius"></div>
+        <div class="claim-ring" title="150m claim radius" aria-hidden="true"></div>
         <div class="vehicle" id="vehicle" aria-hidden="true"></div>
         <div class="next-badge" id="nextBadge">Next: <strong id="nextStop">Pick adventure</strong></div>
-        <div class="map-toast" id="toast"></div>
+        <div class="map-toast" id="toast" role="status" aria-live="polite"></div>
       </div>
       <aside class="side">
         <div class="hero-strip">
@@ -791,6 +926,7 @@
           <button type="button" class="btn btn-primary" id="btnSideClaim">Claim</button>
         </div>
       </aside>
+      </div><!-- /.ar-main -->
     </section>
 
     <!-- Curated adventures (Model Y Explore tiers) -->
@@ -838,14 +974,14 @@
 
     <footer>
       <div class="voice-bar" id="voiceBar">Say: <strong>start trek</strong> · claim · next · adventures · fleet</div>
-      <div class="dock">
-        <button type="button" id="btnVoice" aria-label="Voice"><span class="ico">🎙</span>VOICE</button>
-        <button type="button" id="btnClaim" class="cta" aria-label="Claim"><span class="ico">◆</span>CLAIM</button>
-        <button type="button" id="btnNext" class="primary" aria-label="Next"><span class="ico">➤</span>NEXT</button>
-        <button type="button" id="btnFleet" aria-label="Fleet"><span class="ico">⚡</span>FLEET</button>
-        <button type="button" id="btnGrok" aria-label="Grok"><span class="ico">✦</span>GROK</button>
+      <div class="dock" role="toolbar" aria-label="Car HUD actions">
+        <button type="button" id="btnVoice" aria-label="Voice command" class="tt-press"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0012 0M12 17v4M8 21h8" stroke-linecap="round"/></svg></span>VOICE</button>
+        <button type="button" id="btnClaim" class="cta tt-press" aria-label="Claim pin"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2l4 6-4 14L8 8l4-6z" fill="currentColor"/></svg></span>CLAIM</button>
+        <button type="button" id="btnNext" class="primary tt-press" aria-label="Next stop"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h12M13 6l6 6-6 6"/></svg></span>NEXT</button>
+        <button type="button" id="btnFleet" aria-label="Fleet link" class="tt-press"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 10-14h-7l0-6z" fill="currentColor"/></svg></span>FLEET</button>
+        <button type="button" id="btnGrok" aria-label="Open Grok co-pilot" class="tt-press"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4"/></svg></span>GROK</button>
       </div>
-      <div class="park-note">Park for claims · Drive = voice only · Independent Trek OS · Grok co-pilot · ref: Model Y UX patterns</div>
+      <div class="park-note">Park for claims · Drive = voice only · Independent Trek OS · Grok co-pilot</div>
     </footer>
   </div>
 
@@ -1273,7 +1409,8 @@
               accuracy: pos.coords.accuracy,
             };
             updateGpsChip();
-            renderPins();
+            // Throttled; skips when AR stage hidden
+            if (state.stage === "ar") renderPins(false);
           },
           () => {},
           { enableHighAccuracy: true, maximumAge: 8000, timeout: 25000 }
@@ -1383,6 +1520,7 @@
       const TAB_IDS = { ar: "tabAr", adventures: "tabAdv", rewards: "tabRew" };
       let stageNodes = null;
       let tabNodes = null;
+      let stageSwitching = false;
       function cacheStageNodes() {
         if (!stageNodes) {
           stageNodes = Object.fromEntries(
@@ -1394,41 +1532,75 @@
         }
       }
       function setStage(name) {
-        if (!STAGE_IDS[name]) return;
-        // Fast path: already on this stage
-        if (state.stage === name) {
-          cacheStageNodes();
-          if (stageNodes[name] && stageNodes[name].classList.contains("active")) return;
-        }
-        const prev = state.stage;
-        state.stage = name;
+        if (!STAGE_IDS[name] || stageSwitching) return;
         cacheStageNodes();
-        // Toggle only the two involved stages/tabs when possible
-        if (prev && stageNodes[prev] && prev !== name) {
-          stageNodes[prev].classList.remove("active");
-          if (tabNodes[prev]) tabNodes[prev].classList.remove("active");
-        } else {
-          Object.values(stageNodes).forEach((s) => s && s.classList.remove("active"));
-          Object.values(tabNodes).forEach((b) => b && b.classList.remove("active"));
+        // Fast path: already on this stage
+        if (state.stage === name && stageNodes[name] && stageNodes[name].classList.contains("active")) {
+          return;
         }
-        if (stageNodes[name]) stageNodes[name].classList.add("active");
-        if (tabNodes[name]) tabNodes[name].classList.add("active");
-        // Defer non-critical panel refresh work off the click path
-        const idle = window.requestIdleCallback || function (cb) { return setTimeout(cb, 1); };
-        idle(function () {
-          if (name === "rewards") {
-            // stats are already single-sourced in state; only paint if dirty
-            if (typeof paintRewardStats === "function") paintRewardStats();
+        stageSwitching = true;
+        try {
+          const prev = state.stage;
+          state.stage = name;
+          // Toggle only the two involved stages/tabs when possible (cheap classList only)
+          if (prev && stageNodes[prev] && prev !== name) {
+            stageNodes[prev].classList.remove("active");
+            if (tabNodes[prev]) tabNodes[prev].classList.remove("active");
+          } else {
+            Object.keys(stageNodes).forEach((k) => {
+              if (stageNodes[k]) stageNodes[k].classList.remove("active");
+              if (tabNodes[k]) tabNodes[k].classList.remove("active");
+            });
           }
-        }, { timeout: 200 });
+          if (stageNodes[name]) stageNodes[name].classList.add("active");
+          if (tabNodes[name]) tabNodes[name].classList.add("active");
+          // a11y: mark tab selection
+          Object.keys(tabNodes).forEach((k) => {
+            if (tabNodes[k]) tabNodes[k].setAttribute("aria-selected", k === name ? "true" : "false");
+          });
+        } finally {
+          // Release on next frame so nested handlers can't re-enter mid-toggle
+          requestAnimationFrame(function () {
+            stageSwitching = false;
+          });
+        }
+        // Defer non-critical panel refresh OFF the click path (never sync-render here)
+        const idle =
+          window.requestIdleCallback ||
+          function (cb) {
+            return setTimeout(cb, 32);
+          };
+        idle(function () {
+          try {
+            if (name === "rewards" && typeof paintRewardStats === "function") paintRewardStats();
+            if (name === "adventures" && typeof renderAdventures === "function") renderAdventures();
+            if (name === "rewards" && typeof renderLedger === "function") renderLedger();
+          } catch (e) {
+            console.warn("stage paint", e);
+          }
+        }, { timeout: 400 });
+      }
+
+      function setArStatus(msg, opts) {
+        const bar = $("arStatusBar");
+        const el = $("arStatusMsg");
+        if (!bar || !el) return;
+        if (msg) {
+          el.innerHTML = msg;
+          bar.classList.remove("is-hidden");
+        }
+        if (opts && opts.hide) bar.classList.add("is-hidden");
       }
 
       function renderArRays() {
-        arViewport.querySelectorAll(".ar-ray").forEach((n) => n.remove());
+        if (!arViewport || state.stage !== "ar") return;
+        const existing = arViewport.querySelectorAll(".ar-ray");
+        for (let i = 0; i < existing.length; i++) existing[i].remove();
         const m = mission();
         const targets = m.stops.length
           ? m.stops.filter((s) => !state.claimed.has(s)).slice(0, 4)
           : PINS.filter((p) => !state.claimed.has(p.id)).slice(0, 4).map((p) => p.id);
+        const frag = document.createDocumentFragment();
         targets.forEach((id, i) => {
           const p = pinById(id);
           if (!p) return;
@@ -1436,12 +1608,33 @@
           ray.className = "ar-ray";
           const angle = -40 + i * 28 + (p.x - 50) * 0.4;
           ray.style.transform = "translate(-50%, -100%) rotate(" + angle + "deg)";
-          arViewport.appendChild(ray);
+          frag.appendChild(ray);
         });
+        arViewport.appendChild(frag);
       }
 
-      function renderPins() {
-        arViewport.querySelectorAll(".pin").forEach((n) => n.remove());
+      let pinsRenderQueued = false;
+      let pinsRenderLast = 0;
+      function renderPins(force) {
+        // Throttle GPS-driven rebuilds — pin DOM churn + MutationObservers froze the tab switch path
+        const now = Date.now();
+        if (!force && now - pinsRenderLast < 400) {
+          if (!pinsRenderQueued) {
+            pinsRenderQueued = true;
+            setTimeout(function () {
+              pinsRenderQueued = false;
+              renderPins(true);
+            }, 420);
+          }
+          return;
+        }
+        pinsRenderLast = now;
+        if (!arViewport) return;
+        // Skip heavy rebuild when AR stage is hidden (GPS still updates distances on chip)
+        if (state.stage !== "ar" && !force) return;
+
+        const existing = arViewport.querySelectorAll(".pin");
+        for (let i = 0; i < existing.length; i++) existing[i].remove();
         const m = mission();
         const showIds = m.stops.length ? new Set(m.stops) : null;
         // Live free/starter pins from API
@@ -1457,7 +1650,8 @@
             (state.claimed.has(p.id) ? " claimed" : "") +
             (inRange && !state.claimed.has(p.id) ? " in-range" : "");
           b.style.left = p.x + "%";
-          b.style.top = p.y + "%";
+          // Clamp so pin heads (translateY -100%) stay below sky label / top chrome
+          b.style.top = Math.max(22, Number(p.y) || 40) + "%";
           let distLabel = p.km != null ? p.km + " km" : "—";
           if (state.claimed.has(p.id)) distLabel = "CLAIMED";
           else if (d != null) distLabel = formatDist(d);
@@ -1480,7 +1674,7 @@
             b.type = "button";
             b.className = "pin locked";
             b.style.left = layout.x + "%";
-            b.style.top = layout.y + "%";
+            b.style.top = Math.max(22, Number(layout.y) || 40) + "%";
             b.innerHTML =
               (lp.name || lp.id).split(" ")[0] +
               '<span class="dist">LOCKED</span>';
@@ -1503,7 +1697,7 @@
         const stops = m.stops.length ? m.stops : [];
         if (!stops.length) {
           list.innerHTML =
-            '<div class="empty-ledger" style="padding:20px">Free roam — tap AR pins or open <strong>Adventures</strong> for curated routes.</div>';
+            '<div class="empty-ledger" role="status"><strong>No active adventure</strong><p>Free roam — tap AR pins or open <b>Adventures</b> for curated routes.</p></div>';
           return;
         }
         stops.forEach((id, i) => {
@@ -1604,9 +1798,9 @@
         const el = $("ledger");
         if (!state.ledger.length) {
           el.innerHTML =
-            '<div class="empty-ledger">No claims yet.<br/>Start an adventure, reach a pin, claim within ' +
+            '<div class="empty-ledger" role="status"><strong>0 claims yet</strong><p>Start an adventure, reach a pin, then claim within ' +
             state.claimRadiusM +
-            "m.</div>";
+            "m. Trek Stars appear here after a verified claim.</p></div>";
         } else {
           el.innerHTML = "";
           state.ledger.forEach((row) => {
@@ -1757,16 +1951,17 @@
           state._vehicleDistM = null;
         }
 
-        renderPins();
-        renderQuests();
-        // Pre-render adventures once (tier filter reuses same function); idle if not visible
+        // Stage-aware paints — never rebuild all three panels on every GPS/status tick
+        if (state.stage === "ar") {
+          renderPins(true);
+          renderQuests();
+        }
         if (state.stage === "adventures") {
           renderAdventures();
-        } else {
-          const idle = window.requestIdleCallback || function (cb) { return setTimeout(cb, 32); };
-          idle(function () { renderAdventures(); }, { timeout: 500 });
+        } else if (state.stage === "rewards") {
+          renderLedger();
+          paintRewardStats();
         }
-        renderLedger();
         updateGpsChip();
       }
 
@@ -2227,12 +2422,19 @@
       /* Events */
       document.querySelectorAll(".section-nav button").forEach((b) => {
         // Passive-friendly: only toggle visibility of pre-rendered panels
+        b.setAttribute("role", "tab");
+        b.setAttribute("aria-selected", b.classList.contains("active") ? "true" : "false");
         b.addEventListener("click", (ev) => {
           ev.preventDefault();
+          ev.stopPropagation();
           const stage = b.getAttribute("data-stage");
           if (stage) setStage(stage);
         });
       });
+      const dismissStatus = $("arStatusDismiss");
+      if (dismissStatus) {
+        dismissStatus.addEventListener("click", () => setArStatus(null, { hide: true }));
+      }
       document.querySelectorAll("#tierTabs button").forEach((b) => {
         b.addEventListener("click", () => {
           state.tierFilter = b.getAttribute("data-tier");
@@ -2298,13 +2500,13 @@
             updateHud();
           }
           if (d?.fleet_linked) {
-            toast(
-              "⚡ Fleet linked" +
-                (d.vin_tail ? " ·…" + d.vin_tail : "") +
-                " · vehicle GPS + server ledger · " +
+            setArStatus(
+              "<strong>FLEET ON</strong> · server ledger · vehicle GPS · " +
                 state.claimRadiusM +
-                "m"
+                "m claim radius" +
+                (d.vin_tail ? " · …" + d.vin_tail : "")
             );
+            toast("Fleet linked · vehicle GPS live");
             $("voiceBar").textContent =
               "Fleet ON · CLAIM needs device + vehicle ≤" +
               state.claimRadiusM +
@@ -2312,14 +2514,16 @@
           } else {
             const accessNote =
               state.starterAccess
-                ? " · Starter " + (state.entitlementStatus || "on")
-                : " · Free tier";
-            toast(
-              "◆ TREK ONLINE · server ledger · pins " +
+                ? "Starter " + (state.entitlementStatus || "on")
+                : "Free tier";
+            setArStatus(
+              "<strong>TREK ONLINE</strong> · server ledger · pins " +
                 state.pinSource +
+                " · " +
                 accessNote +
                 " · FLEET for vehicle-verified claims"
             );
+            toast("Trek online · " + accessNote);
           }
           updateHud();
         }
