@@ -32,7 +32,7 @@
     width: 96px;
     height: 96px;
     border-radius: 9999px;
-    background: conic-gradient(#10b981 0% 78%, #334155 78% 100%);
+    background: conic-gradient(#10b981 0% 64%, #334155 64% 100%);
     display: flex;
     align-items: center;
     justify-content: center;

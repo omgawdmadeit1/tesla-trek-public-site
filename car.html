@@ -708,6 +708,24 @@
     .ledger-row .mode-tag.device { background: #2a2410; color: var(--gold); }
     .pin.in-range { box-shadow: 0 0 0 2px var(--green), 0 0 16px rgba(61,214,140,0.35); }
   </style>
+
+    <script>
+    // Production: strip Vercel Live/Feedback toolbar if platform injects it
+    (function () {
+      try {
+        var h = location.hostname;
+        var prod = h === 'www.tesla-trek.com' || h === 'tesla-trek.com';
+        if (!prod) return;
+        var kill = function () {
+          document.querySelectorAll(
+            'script[src*="vercel.live"], iframe[src*="vercel.live"], [data-vercel-toolbar], #vercel-live-feedback, vercel-live-feedback'
+          ).forEach(function (n) { n.remove(); });
+        };
+        kill();
+        new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+      } catch (e) {}
+    })();
+    </script>
 </head>
 <body>
   <div class="app">

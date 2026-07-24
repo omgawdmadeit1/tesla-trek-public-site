@@ -9,6 +9,16 @@
   <meta name="apple-mobile-web-app-title" content="Try Trek" />
   <meta name="theme-color" content="#0a0a0b" />
   <meta name="description" content="Step-by-step guide to try Tesla Trek in a Model Y — car HUD, claims, optional Fleet." />
+  <link rel="canonical" href="https://www.tesla-trek.com/try-trek" />
+  <meta property="og:url" content="https://www.tesla-trek.com/try-trek" />
+  <meta property="og:title" content="Try Tesla Trek — step by step" />
+  <meta property="og:description" content="Step-by-step guide to try Tesla Trek in a Model Y — free car HUD, AR pins, claims, optional Fleet." />
+  <meta property="og:image" content="https://www.tesla-trek.com/icons/og-image.png" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.json" />
+
   <title>Try Tesla Trek — Model Y Guide</title>
   <style>
     /* Safari-friendly: system fonts, no flex gaps reliance only, large type, safe areas */
@@ -203,6 +213,24 @@
       html { scroll-behavior: auto; }
     }
   </style>
+
+    <script>
+    // Production: strip Vercel Live/Feedback toolbar if platform injects it
+    (function () {
+      try {
+        var h = location.hostname;
+        var prod = h === 'www.tesla-trek.com' || h === 'tesla-trek.com';
+        if (!prod) return;
+        var kill = function () {
+          document.querySelectorAll(
+            'script[src*="vercel.live"], iframe[src*="vercel.live"], [data-vercel-toolbar], #vercel-live-feedback, vercel-live-feedback'
+          ).forEach(function (n) { n.remove(); });
+        };
+        kill();
+        new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+      } catch (e) {}
+    })();
+    </script>
 </head>
 <body>
   <div class="wrap">

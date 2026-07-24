@@ -78,6 +78,24 @@
     color:#c2f970; border-radius:6px; padding:2px 8px; cursor:pointer; font-size:.8rem;
   }
 </style>
+
+    <script>
+    // Production: strip Vercel Live/Feedback toolbar if platform injects it
+    (function () {
+      try {
+        var h = location.hostname;
+        var prod = h === 'www.tesla-trek.com' || h === 'tesla-trek.com';
+        if (!prod) return;
+        var kill = function () {
+          document.querySelectorAll(
+            'script[src*="vercel.live"], iframe[src*="vercel.live"], [data-vercel-toolbar], #vercel-live-feedback, vercel-live-feedback'
+          ).forEach(function (n) { n.remove(); });
+        };
+        kill();
+        new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+      } catch (e) {}
+    })();
+    </script>
 </head>
 <body>
   <div class="card">
