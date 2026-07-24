@@ -433,6 +433,10 @@
       gap: 8px;
       -webkit-overflow-scrolling: touch;
     }
+    .quest-list:focus-visible {
+      outline: 2px solid rgba(62,106,225,.55);
+      outline-offset: -2px;
+    }
     .quest-row {
       min-height: 56px;
       display: grid;
@@ -929,7 +933,7 @@
         </div>
         <div class="progress-wrap" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
         <div class="gps-chip" id="gpsChip" title="Distance from device GPS to selected pin">GPS · select a pin</div>
-        <div class="quest-list" id="questList" role="list"></div>
+        <div class="quest-list" id="questList" tabindex="0" aria-label="Quest stops"></div>
         <div class="side-cta">
           <button type="button" class="btn btn-secondary" id="btnSideNav">Navigate</button>
           <button type="button" class="btn btn-secondary" id="btnSideNext">Next</button>
