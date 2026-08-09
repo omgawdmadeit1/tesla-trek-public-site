@@ -227,7 +227,7 @@
           ).forEach(function (n) { n.remove(); });
         };
         kill();
-        new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+        new MutationObserver(kill).observe(document.body || document.documentElement, { childList: true, subtree: false });
       } catch (e) {}
     })();
     </script>
@@ -536,5 +536,15 @@
       <p><a href="https://www.tesla-trek.com/TRY-TREK-MODEL-Y.txt">Download plain text (.txt)</a></p>
     </footer>
   </div>
+
+<div id="lvl-portfolio-strip" style="margin:16px auto;max-width:720px;padding:12px 14px;border:1px solid #243241;border-radius:12px;background:#121a22;font:13px/1.45 system-ui,sans-serif;color:#b7c7d6">
+  <strong style="color:#e8eef5">LVL portfolio</strong> ·
+  <a href="https://lvlltd.com" style="color:#8fd3ff">Skills market</a> ·
+  <a href="https://lvlltd.com/skills/tesla-trek-coordinator/outline.json" style="color:#8fd3ff">Trek coordinator skill (free outline)</a> ·
+  <a href="https://forge.lvlltd.com" style="color:#8fd3ff">Hu-ManForge</a> ·
+  <a href="https://lvlltd.com/api/proof" style="color:#8fd3ff">Confirmed proof</a>
+  <div style="margin-top:6px;font-size:12px;color:#8aa0b5">Independent product — not affiliated with Tesla, Inc. Park before pay or forms.</div>
+</div>
+
 </body>
 </html>

@@ -202,7 +202,7 @@
           ).forEach(function (n) { n.remove(); });
         };
         kill();
-        new MutationObserver(kill).observe(document.documentElement, { childList: true, subtree: true });
+        new MutationObserver(kill).observe(document.body || document.documentElement, { childList: true, subtree: false });
       } catch (e) {}
     })();
     </script>

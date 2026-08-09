@@ -1,0 +1,69 @@
+/* Grok Imagine visual layer — survives Tailwind rebuild of site.css */
+.tt-imagine-hero {
+  width: 100%;
+  min-height: 14rem;
+  max-height: 20rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(120deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.72)),
+    url("/images/imagine/hero-coast.jpg") center / cover no-repeat;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1rem;
+}
+
+html body {
+  background-color: #05080f !important;
+  background-image:
+    linear-gradient(180deg, rgba(5, 8, 15, 0.82) 0%, rgba(5, 8, 15, 0.94) 70%, #05080f 100%),
+    url("/images/imagine/hero-coast.jpg") !important;
+  background-size: cover !important;
+  background-position: center top !important;
+  background-attachment: fixed !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body {
+    background-attachment: scroll !important;
+  }
+}
+
+.section-card {
+  backdrop-filter: blur(12px);
+}
+
+/* Imagine UI chrome — menus & buttons */
+.site-header {
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,.88)),
+    url("/images/imagine/ui-navbar.jpg") !important;
+  background-size: cover !important;
+  backdrop-filter: blur(12px);
+}
+.tt-btn {
+  background-image:
+    linear-gradient(180deg, rgba(15,23,42,.55), rgba(15,23,42,.8)),
+    url("/images/imagine/ui-btn-ghost.jpg") !important;
+  background-size: cover !important;
+  border: 1px solid rgba(148,163,184,.3) !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.tt-btn.bg-emerald-500,
+.tt-btn.bg-emerald-600,
+a.tt-btn[href*="pay"] {
+  background-image:
+    linear-gradient(180deg, rgba(16,185,129,.45), rgba(6,78,59,.75)),
+    url("/images/imagine/ui-btn-buy.jpg") !important;
+  border-color: rgba(52,211,153,.5) !important;
+  color: #ecfdf5 !important;
+}
+.tt-btn.bg-\[\#3E6AE1\],
+a.tt-btn[href="/car"] {
+  background-image:
+    linear-gradient(180deg, rgba(62,106,225,.5), rgba(30,58,138,.75)),
+    url("/images/imagine/ui-btn-primary.jpg") !important;
+  border-color: rgba(96,165,250,.45) !important;
+}
+.section-card {
+  box-shadow: 0 16px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+}
