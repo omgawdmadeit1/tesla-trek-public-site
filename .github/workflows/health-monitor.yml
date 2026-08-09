@@ -44,7 +44,7 @@ jobs:
           check "bare domain redirect" "https://tesla-trek.com" "308"
           check "homepage" "https://www.tesla-trek.com" "200"
           check "payment page" "https://www.tesla-trek.com/pay/trek-starter" "200"
-          check "try-trek page" "https://www.tesla-trek.com/try-trek.html" "200"
+          check "try-trek page" "https://www.tesla-trek.com/try-trek" "200"
           check "entitlement API" "https://www.tesla-trek.com/api/fleet/entitlement" "200"
           check "fleet status API" "https://www.tesla-trek.com/api/fleet/status" "200"
 
