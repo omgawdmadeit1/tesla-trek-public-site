@@ -1,0 +1,92 @@
+name: Health monitor
+
+# Recurring check of the live site + payment flow + fleet API. Opens/updates
+# a tracking issue on failure, closes it automatically on recovery. No
+# aggregate sales endpoint exists for tesla-trek.com (unlike lvlltd.com's
+# /api/proof) — this checks uptime/correctness, not revenue.
+
+on:
+  schedule:
+    - cron: "37 */2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: health-monitor
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Check site + payment flow health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Run checks
+        id: checks
+        run: |
+          set -euo pipefail
+          FAILURES=""
+
+          check() {
+            local name="$1" url="$2" expect="$3"
+            code=$(curl -sS -o /tmp/resp.body -w "%{http_code}" --max-time 15 "$url" || echo "000")
+            if [ "$code" != "$expect" ]; then
+              FAILURES="${FAILURES}- **${name}**: expected HTTP ${expect}, got ${code} (${url})\n"
+              echo "FAIL: $name -> $code (expected $expect)"
+            else
+              echo "OK: $name -> $code"
+            fi
+          }
+
+          check "bare domain redirect" "https://tesla-trek.com" "308"
+          check "homepage" "https://www.tesla-trek.com" "200"
+          check "payment page" "https://www.tesla-trek.com/pay/trek-starter" "200"
+          check "try-trek page" "https://www.tesla-trek.com/try-trek.html" "200"
+          check "entitlement API" "https://www.tesla-trek.com/api/fleet/entitlement" "200"
+          check "fleet status API" "https://www.tesla-trek.com/api/fleet/status" "200"
+
+          # entitlement API should return valid JSON with expected shape, not just 200
+          if ! curl -sS --max-time 15 "https://www.tesla-trek.com/api/fleet/entitlement" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('ok') is True; assert 'entitlement' in d" 2>/dev/null; then
+            FAILURES="${FAILURES}- **entitlement API shape**: response missing ok:true or entitlement field\n"
+            echo "FAIL: entitlement API shape"
+          fi
+
+          if [ -n "$FAILURES" ]; then
+            echo "has_failures=true" >> "$GITHUB_OUTPUT"
+            printf '%b' "$FAILURES" > /tmp/failures.md
+          else
+            echo "has_failures=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open/update tracking issue on failure
+        if: steps.checks.outputs.has_failures == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TITLE="site health check failing"
+          FAILURES=$(cat /tmp/failures.md)
+          BODY=$'One or more health checks are failing:\n\n'"$FAILURES"$'\nRun: '"${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label health --state open --json number,title --jq '.[] | select(.title=="'"$TITLE"'") | .number' | head -1)
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$BODY"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --label "health" --body "$BODY" || \
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
+          fi
+
+      - name: Close tracking issue on recovery
+        if: steps.checks.outputs.has_failures == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TITLE="site health check failing"
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label health --state open --json number,title --jq '.[] | select(.title=="'"$TITLE"'") | .number' | head -1)
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "All checks passing again — closing." || true
+            gh issue close "$existing" --repo "$GITHUB_REPOSITORY" || true
+          fi
