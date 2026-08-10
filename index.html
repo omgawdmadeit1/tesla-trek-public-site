@@ -93,13 +93,19 @@
         var prod = h === 'www.tesla-trek.com' || h === 'tesla-trek.com';
         if (!prod) return;
         var SEL = 'script[src*="vercel.live"], iframe[src*="vercel.live"], [data-vercel-toolbar], #vercel-live-feedback, vercel-live-feedback';
-        var busy = false, kills = 0;
+        var busy = false, kills = 0, idleTicks = 0;
+        var mo = null;
         var kill = function () {
-          if (busy || kills > 40) return;
+          if (busy || kills > 20) return;
           busy = true;
           try {
             var nodes = document.querySelectorAll(SEL);
-            if (!nodes.length) return;
+            if (!nodes.length) {
+              idleTicks++;
+              if (idleTicks >= 3 && mo) { try { mo.disconnect(); } catch (e) {} mo = null; }
+              return;
+            }
+            idleTicks = 0;
             kills++;
             for (var i = 0; i < nodes.length; i++) { try { nodes[i].remove(); } catch (e) {} }
           } finally {
@@ -107,14 +113,14 @@
           }
         };
         kill();
-        var mo = new MutationObserver(function () { if (!busy) kill(); });
+        mo = new MutationObserver(function () { if (!busy) kill(); });
         document.addEventListener('DOMContentLoaded', function () {
           if (document.body) mo.observe(document.body, { childList: true, subtree: false });
         });
         var t = 0;
         var iv = setInterval(function () {
           kill();
-          if (++t > 30 || kills > 40) { clearInterval(iv); try { mo.disconnect(); } catch (e) {} }
+          if (++t > 15 || kills > 20 || !mo) { clearInterval(iv); try { if (mo) mo.disconnect(); } catch (e) {} mo = null; }
         }, 2000);
       } catch (e) {}
     })();
@@ -164,7 +170,7 @@
                 <button type="button" data-action="show-quests" class="tt-btn px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1.5" aria-label="Quests"><svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-mountain"/></svg>Quests</button>
                 <button type="button" data-action="fly-map" class="tt-btn px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1.5" aria-label="Map"><svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-compass"/></svg>Map</button>
                 <button type="button" data-action="connect-tesla" class="tt-btn px-4 py-1.5 rounded-full hover:bg-white/5 flex items-center gap-1.5">Community</button>
-                <a href="/pay/trek-starter" class="tt-btn px-3 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1" title="Pay 25 DOGE · Starter pack">Pay 25 Ð</a>
+                <a href="/pay/trek-starter" class="tt-btn pay-cta px-3 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1" title="Pay 25 DOGE · Unlock Starter">Pay 25 Ð</a>
                 <button type="button" data-action="show-grok" class="tt-btn px-3 py-1.5 rounded-full bg-purple-600/80 hover:bg-purple-600 text-xs flex items-center gap-1.5" aria-label="Open Grok co-pilot"><svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-spark"/></svg>Grok</button>
                 <button type="button" data-action="spawn-treasure" class="tt-btn px-3 py-1.5 rounded-full hover:bg-white/5 text-xs flex items-center gap-1.5" title="Drop treasure marker" aria-label="Drop treasure marker"><svg class="tt-ico text-yellow-400" width="14" height="14" aria-hidden="true"><use href="#i-gem"/></svg></button>
                 <button type="button" data-action="boost-fleet" class="tt-btn px-2 text-xs text-emerald-400 hover:text-emerald-300" title="Fleet boost" aria-label="Fleet boost"><svg class="tt-ico" width="16" height="16" aria-hidden="true"><use href="#i-bolt"/></svg></button>
@@ -223,7 +229,7 @@
                         </div>
 
                         <div class="mt-4 flex flex-wrap items-center gap-2">
-                            <a href="/pay/trek-starter" class="tt-btn bg-emerald-500 hover:bg-emerald-400 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2">Pay 25 DOGE · Starter</a>
+                            <a href="/pay/trek-starter" class="tt-btn pay-cta bg-emerald-500 hover:bg-emerald-400 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2" title="Pay 25 DOGE · Unlock Starter">Pay 25 DOGE · Unlock Starter</a>
                             <button type="button" data-action="start-trek" class="tt-btn bg-yellow-400 hover:bg-yellow-300 transition text-black text-sm font-semibold px-5 py-2 rounded-2xl flex items-center gap-2">
                                 <svg class="tt-ico" width="14" height="14" aria-hidden="true"><use href="#i-play"/></svg> Start Trek
                             </button>
@@ -754,6 +760,10 @@
         }
 
         function spawnTreasure(force = false) {
+            // P0 freeze: hard cap treasure DOM churn on AR Map / Adventures tabs
+            window.__LVL_TREK_SPAWN_N = (window.__LVL_TREK_SPAWN_N || 0) + 1;
+            if (!force && window.__LVL_TREK_SPAWN_N > 24) return;
+            if (force && window.__LVL_TREK_SPAWN_N > 48) return;
             if (!liveMap) return;
             const lat = 37.75 + (Math.random() - 0.5) * 0.08;
             const lng = -119.5 + (Math.random() - 0.5) * 0.1;
@@ -1143,9 +1153,32 @@
     </script>
 
   <!-- FOOTER / INFO -->
+  <section class="gear-strip max-w-7xl mx-auto px-6 py-5" aria-label="Trip gear affiliate links">
+    <h3 class="text-sm font-semibold text-white/80 mb-2">Trip gear (affiliate)</h3>
+    <ul class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/70 list-none p-0 m-0">
+      <li><a class="underline hover:text-white" rel="nofollow sponsored" href="https://www.amazon.com/s?k=kids+travel+tray+car&amp;tag=lvl0f0-20">Kids travel tray</a></li>
+      <li><a class="underline hover:text-white" rel="nofollow sponsored" href="https://www.amazon.com/s?k=portable+tire+inflator+12v&amp;tag=lvl0f0-20">Portable tire inflator</a></li>
+      <li><a class="underline hover:text-white" rel="nofollow sponsored" href="https://www.amazon.com/s?k=car+seat+back+organizer&amp;tag=lvl0f0-20">Seat-back organizer</a></li>
+    </ul>
+    <p class="affiliate-disclosure mt-2 text-[11px] text-white/50">As an Amazon Associate I earn from qualifying purchases.</p>
+  </section>
+
+  <div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap gap-3 items-center">
+    <a href="/pay/trek-starter" class="tt-btn pay-cta bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold px-4 py-2 rounded-full">Pay 25 DOGE · Unlock Starter</a>
+    <aside class="cross-sell text-[11px] text-white/55" aria-label="For builders">
+      Built on LVL LTD agent-payment rails.
+      <a class="underline hover:text-white" href="https://lvlltd.com/goods/lvl-agent-revenue-os-pack/">Ship your own paid agent product → $49 pack</a>
+      · <a class="underline hover:text-white" href="https://lvlltd.com/hub/marketplace/">Skill marketplace</a>
+    </aside>
+  </div>
+
   <div class="max-w-7xl mx-auto px-6 py-4 text-[11px] text-white/45 leading-relaxed">
     <strong class="text-white/60">Privacy note:</strong> Tesla Trek does not display bank account numbers, payroll IDs, or precise home GPS on public pages.
     Optional vehicle connect is user-initiated. See also <a class="underline" href="https://lvlltd.com">LVL LTD</a> agent market and <a class="underline" href="https://music.lvlltd.com">music library</a>.
+    <p class="affiliate-disclosure mt-2 text-[11px] text-white/50">
+      Some links may be affiliate links. As an Amazon Associate I earn from qualifying purchases.
+      Crypto payments are optional product purchases — not investment advice.
+    </p>
   </div>
 
   <div class="border-t border-white/10 py-10 text-center text-xs text-white/50">
@@ -1155,15 +1188,5 @@
       <span class="text-white/40">Live on Vercel + Cloudflare Pages. Ready for custom domains *.tesla-trek.com. Full source in variants/*/ (self-contained static) + this root selector.</span>
     </div>
   </div>
-
-<div id="lvl-portfolio-strip" style="margin:16px auto;max-width:720px;padding:12px 14px;border:1px solid #243241;border-radius:12px;background:#121a22;font:13px/1.45 system-ui,sans-serif;color:#b7c7d6">
-  <strong style="color:#e8eef5">LVL portfolio</strong> ·
-  <a href="https://lvlltd.com" style="color:#8fd3ff">Skills market</a> ·
-  <a href="https://lvlltd.com/skills/tesla-trek-coordinator/outline.json" style="color:#8fd3ff">Trek coordinator skill (free outline)</a> ·
-  <a href="https://forge.lvlltd.com" style="color:#8fd3ff">Hu-ManForge</a> ·
-  <a href="https://lvlltd.com/api/proof" style="color:#8fd3ff">Confirmed proof</a>
-  <div style="margin-top:6px;font-size:12px;color:#8aa0b5">Independent product — not affiliated with Tesla, Inc. Park before pay or forms.</div>
-</div>
-
 </body>
 </html>
