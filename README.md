@@ -1,6 +1,10 @@
 # Tesla Trek public site
 
-Static marketing + car HUD for [tesla-trek.com](https://www.tesla-trek.com).
+Static marketing + car HUD for the one public demo: [www.tesla-trek.com](https://www.tesla-trek.com).
+
+Canonical app: [tesla-trek-v2](https://github.com/omgawdmadeit1/tesla-trek-v2) (TanStack). If this homepage stays on the HTML HUD, open the TanStack demo at [tesla-trek-v2-tesla-trek.vercel.app](https://tesla-trek-v2-tesla-trek.vercel.app).
+
+Fleet vehicle data is imported from [tesla-fleet-client](https://github.com/omgawdmadeit1/tesla-fleet-client). tesla-trek-v4 `/api/fleet` is not the live product path.
 
 ## Build
 
@@ -23,9 +27,8 @@ Preview deployments may keep the toolbar.
 
 | Path | File |
 |------|------|
-| `/` | `index.html` |
+| `/` | `index.html` (this demo) |
 | `/car` | `car.html` (cleanUrls) |
 | `/pay/trek-starter` | `pay/trek-starter.html` |
-| API `/api/fleet/*` | tesla-trek-v4 Next app (separate project / same domain) |
 
 DOGE Starter unlock is verified server-side via Blockchair (address + amount + in-block). Never from client paste alone.

@@ -2354,7 +2354,7 @@
           refreshFleetStatus().then((d) => {
             if (d && !d.auth_configured) {
               $("voiceBar").innerHTML =
-                "Fleet: set <strong>TESLA_CLIENT_ID</strong> + <strong>TESLA_REDIRECT_URI</strong> on tesla-trek-v4";
+                "Fleet: set <strong>TESLA_CLIENT_ID</strong> + <strong>TESLA_REDIRECT_URI</strong> in tesla-fleet-client";
             }
           });
           return;
