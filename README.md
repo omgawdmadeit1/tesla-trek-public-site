@@ -2,9 +2,11 @@
 
 Static marketing + car HUD for the one public demo: [www.tesla-trek.com](https://www.tesla-trek.com).
 
-Canonical app: [tesla-trek-v2](https://github.com/omgawdmadeit1/tesla-trek-v2) (TanStack). If this homepage stays on the HTML HUD, open the TanStack demo at [tesla-trek-v2-tesla-trek.vercel.app](https://tesla-trek-v2-tesla-trek.vercel.app).
+Canonical app: [tesla-trek-v2](https://github.com/omgawdmadeit1/tesla-trek-v2) (TanStack). Do not advertise extra HTML-fork demos.
 
-Fleet vehicle data is imported from [tesla-fleet-client](https://github.com/omgawdmadeit1/tesla-fleet-client). tesla-trek-v4 `/api/fleet` is not the live product path.
+Fleet vehicle data is imported from tesla-fleet-client. tesla-trek-v4 `/api/fleet` is not the live product path.
+
+The optional TanStack preview `tesla-trek-v2-tesla-trek.vercel.app` is Vercel-login gated, so it is not listed on the homepage.
 
 ## Build
 
