@@ -1,0 +1,19 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "Tesla Trek (LVL LTD CO)",
+    "identifier": "https://www.tesla-trek.com"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:tesla-trek.com:skills:index",
+      "displayName": "Tesla Trek agent skills index",
+      "type": "application/agent-skills-index+json",
+      "url": "https://www.tesla-trek.com/.well-known/agent-skills/index.json",
+      "representativeQueries": [
+        "what is Tesla Trek",
+        "how do I try Tesla Trek in my car"
+      ]
+    }
+  ]
+}

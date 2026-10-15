@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "tesla-trek-site",
+      "type": "skill-md",
+      "description": "Describe and navigate the Tesla Trek public site (no API, no accounts).",
+      "url": "/.well-known/agent-skills/tesla-trek-site/SKILL.md",
+      "digest": "sha256:ebdcc8ddc32d7c0168d13a54967a197b1be00b55e8a57301d34412e957e2a15b"
+    }
+  ]
+}
