@@ -1,0 +1,14 @@
+# Tesla Trek (LVL LTD CO)
+
+> Free car HUD, AR-pin location hunts and family road-trip adventures that run in a car or phone browser. Optional DOGE Starter unlock. Independent project. Not affiliated with, endorsed by, or sponsored by Tesla, Inc. Tesla is a trademark of Tesla, Inc.
+
+## Pages
+- [Home](https://www.tesla-trek.com/index.md): overview, gear, Starter unlock
+- [Try Trek guide](https://www.tesla-trek.com/try-trek.md): step-by-step setup in a Model Y browser
+- [Car HUD](https://www.tesla-trek.com/car): in-car heads-up display (park to claim)
+- [Founder / waitlist](https://www.tesla-trek.com/founder)
+- [Starter unlock](https://www.tesla-trek.com/pay/trek-starter): pay 25 DOGE
+
+## Notes for agents
+- No public API, accounts, OAuth or MCP on this host. /api/* is not for agents.
+- Never interact with the HUD while driving. Claims require parking within about 150 m of a pin.

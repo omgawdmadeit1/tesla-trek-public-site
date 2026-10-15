@@ -1,5 +1,6 @@
 # Tesla Trek — public static site
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
 Allow: /car
 Allow: /try-trek
@@ -13,4 +14,24 @@ Disallow: /internal
 Disallow: /internal/
 Disallow: /api/
 
+# AI crawlers: same access and limits as everyone else
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+Disallow: /ops/
+Disallow: /admin/
+Disallow: /internal/
+Disallow: /api/
+
 Sitemap: https://www.tesla-trek.com/sitemap.xml
+Agentmap: https://www.tesla-trek.com/.well-known/ai-catalog.json
